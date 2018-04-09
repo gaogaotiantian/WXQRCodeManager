@@ -1,5 +1,6 @@
 /*
 !/QRCodeReader/
+/QRCodeReader/__pycache__/
 !/.gitignore
 !/*.py
 !/Procfile
