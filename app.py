@@ -24,6 +24,7 @@ class QRCodeDb(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     url         = db.Column(db.String(256))
     expire_time = db.Column(db.Float)
+    name        = db.Column(db.String(256))
     tags        = db.Column(db.String(256))
 
 db.create_all()
@@ -36,12 +37,15 @@ def index():
 Read https://developers.weixin.qq.com/miniprogram/dev/api/network-file.html
 
 POST:
-    Upload a file from the client. 
+    Upload an image from the client. 
 
     The server should be able to receive the image, pass it to QRCodeReader,
     get the decoded data and save it in the database.
 
-Get:
+GET:
+    arg:
+        'id': id for the image
+
     Download an image from the server. 
     A legit request from the client should have an arg "id" to identify which
     qrcode the client needs. Get this from "request.args.get('id')"
@@ -49,4 +53,20 @@ Get:
 '''
 @app.route('/api/v1/qrcode', methods=['GET', 'POST'])
 def qrcode():
+    pass
+
+'''
+GET:
+    arg:
+        'keywords': a string of key words
+    return:
+        'groups':
+            'id': id of the group
+            'name': name of the group
+            'tags': tags of the group
+
+    Get a list of groups that match the key words.
+'''
+@app.route('/api/v1/groups', methods=['GET'])
+def groups():
     pass
