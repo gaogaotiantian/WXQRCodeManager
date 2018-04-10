@@ -4,6 +4,7 @@
 !/.gitignore
 !/*.py
 !/Procfile
+!/Aptfile
 !/requirements.txt
 !/LICENSE
 !/README.md
