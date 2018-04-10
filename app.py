@@ -10,8 +10,9 @@ from flask_cors import CORS
 
 # our packages
 # Load zbar library before QRCodeReader
+from pyzbar import pyzbar as zbar
 if os.environ.get('ZBAR_LIB') != None:
-    LIBZBAR = os.environ.get('ZBAR_LIB') 
+    zbar.LIBZBAR = os.environ.get('ZBAR_LIB') 
 from QRCodeReader import QRCodeReader
 
 if os.environ.get('DATABASE_URL') != None:
