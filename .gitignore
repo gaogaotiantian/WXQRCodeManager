@@ -1,6 +1,8 @@
 /*
 !/QRCodeReader/
+!/pyzbar/
 /QRCodeReader/__pycache__/
+/pyzbar/__pycache__/
 !/.gitignore
 !/*.py
 !/Procfile
