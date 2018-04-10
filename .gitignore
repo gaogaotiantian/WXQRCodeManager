@@ -3,6 +3,9 @@
 !/pyzbar/
 /QRCodeReader/__pycache__/
 /pyzbar/__pycache__/
+/pyzbar/tests/
+/pyzbar/scripts/
+/pyzbar/.*
 !/.gitignore
 !/*.py
 !/Procfile
