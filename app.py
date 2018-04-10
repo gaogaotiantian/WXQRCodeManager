@@ -9,10 +9,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 # our packages
+# Load zbar library before QRCodeReader
+if os.environ.get('ZBAR_LIB') != None:
+    LIBZBAR = os.environ.get('ZBAR_LIB') 
 from QRCodeReader import QRCodeReader
 
 if os.environ.get('DATABASE_URL') != None:
     DATABASE_URL = os.environ.get('DATABASE_URL')
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
