@@ -9,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 # our packages
-from pyzbar import pyzbar as zbar
 from QRCodeReader import QRCodeReader
 
 if os.environ.get('DATABASE_URL') != None:
