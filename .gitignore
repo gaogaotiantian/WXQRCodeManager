@@ -1,10 +1,17 @@
 /*
 !/QRCodeReader/
+!/pyzbar/
 /QRCodeReader/__pycache__/
+/pyzbar/__pycache__/
+/pyzbar/tests/
+/pyzbar/scripts/
+/pyzbar/.*
 !/.gitignore
 !/*.py
 !/Procfile
+!/Aptfile
 !/requirements.txt
 !/LICENSE
 !/README.md
+!/*.html
 
