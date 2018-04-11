@@ -3,8 +3,6 @@
 # python built-in packages
 import os
 import io
-from tempfile import NamedTemporaryFile
-from shutil import copyfileobj
 
 # other published packages
 from flask import Flask, request, send_file
@@ -65,19 +63,21 @@ GET:
 def qrcode():
     if request.method == 'GET':
         id = request.args.get('id')
+        if id == None:
+            return "Invalid"
+        try:
+            int(id)
+        except ValueError:
+            return "Invalid."
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
             image = reader.generate_image(qrInfo.url)
             # Convert the image into Bytes
-            image.save("/tmp/img{}.jpeg".format(qrInfo.id), "JPEG")
-            tempFileObj = NamedTemporaryFile(mode='w+b',suffix='jpg')
-            tempImg = open("/tmp/img{}.jpeg".format(qrInfo.id),'rb')
-            copyfileobj(tempImg,tempFileObj)
-            tempImg.close()
-            os.remove("/tmp/img{}.jpeg".format(qrInfo.id))
-            tempFileObj.seek(0,0)
-            return send_file(tempFileObj, as_attachment=True, attachment_filename='myfile.jpg')
+            file = io.BytesIO()
+            image.save(file, 'jpeg')
+            file.seek(0)
+            return send_file(file, as_attachment=True, attachment_filename='myfile.jpg')
         else:
             return "Request id is not found in "
 
