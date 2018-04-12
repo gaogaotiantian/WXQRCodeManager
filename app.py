@@ -3,6 +3,10 @@
 # python built-in packages
 import os
 import io
+import json
+from tempfile import NamedTemporaryFile
+from shutil import copyfileobj
+
 
 # other published packages
 from flask import Flask, request, send_file, render_template, make_response
@@ -132,7 +136,12 @@ GET:
 '''
 @app.route('/api/v1/groups', methods=['GET'])
 def groups():
-    pass
+	keywords = request.args.get ("keywords")
+	groups = []
+	for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
+		groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
+	return json.dump(groups)
+    
 
 @app.route("/test")
 def test():
