@@ -4,8 +4,6 @@
 import os
 import io
 import json
-from tempfile import NamedTemporaryFile
-from shutil import copyfileobj
 
 
 # other published packages
@@ -71,7 +69,7 @@ def qrcode():
             return make_response("You need to input a valid id", 400)
         try:
             int(id)
-        except ValueError:
+        except:
             return make_response("You need to input a valid id", 400)
 
         qrInfo = QRCodeDb.query.get(id)
@@ -92,8 +90,8 @@ def qrcode():
             return make_response("Cannot find the attached file. It must be a form-data contains the key pair 'img':imgFile", 400)
         image = None
         try:
-            image = Image.open(gotImg)
-        except ValueError:
+            image = Image.open(file)
+        except:
             return make_response("The file is not a valid image", 400)
 
         if image != None:
