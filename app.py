@@ -5,7 +5,7 @@ import os
 import io
 
 # other published packages
-from flask import Flask, request, send_file, render_template
+from flask import Flask, request, send_file, render_template, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -64,11 +64,12 @@ def qrcode():
     if request.method == 'GET':
         id = request.args.get('id')
         if id == None:
-            return "Invalid"
+            return make_response("You need to input a valid id", 400)
         try:
             int(id)
         except ValueError:
-            return "Invalid."
+            return make_response("You need to input a valid id", 400)
+
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
@@ -79,15 +80,23 @@ def qrcode():
             file.seek(0)
             return send_file(file, as_attachment=True, attachment_filename='myfile.jpg')
         else:
-            return "Request id is not found in "
+            return make_response("Cannot find the id in database", 200)
 
     if request.method == 'POST':
-        image = Image.open(request.files.get("Image"))
+        file = request.files.get("img")
+        if file == None:
+            return make_response("Cannot find the attached file. It must be a form-data contains the key pair 'img':imgFile", 400)
+        image = None
+        try:
+            image = Image.open(gotImg)
+        except ValueError:
+            return make_response("The file is not a valid image", 400)
+
         if image != None:
             reader = QR.QRCodeReader()
             qrcode = reader.get_qrcode_data(image)
             if qrcode == None:
-                return "Invalid QRCode picture"
+                return make_response("Cannot read QRCode from the image.", 200)
             url = qrcode.url
             # DEBUG: Need to add QRCode checker
             # Check same QRcode
@@ -102,11 +111,11 @@ def qrcode():
                 qrInfo.tags = "Test"
                 db.session.add(qrInfo)
                 db.session.commit()
-                return "Successful!"
+                return make_response("Saved successfully!", 200)
             else:
-                return "QRCode already exists!"
+                return make_response("QRCode already exists, didn't save.", 200)
 
-    return "Invalid request method"
+    return make_response("Invalid request method, only support GET or POST", 400)
 
 
 '''
@@ -128,5 +137,6 @@ def groups():
 @app.route("/test")
 def test():
     return render_template("test.html")
+    
 if __name__ == "__main__":
     app.run(debug = True)
