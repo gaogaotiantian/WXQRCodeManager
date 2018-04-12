@@ -23,7 +23,7 @@ DATABASE_URL = None
 if os.environ.get('DATABASE_URL') != None:
     DATABASE_URL = os.environ.get('DATABASE_URL')
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path = '/static')
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
@@ -39,10 +39,6 @@ class QRCodeDb(db.Model):
     tags        = db.Column(db.String(256))
 
 db.create_all()
-
-@app.route('/')
-def index():
-    return 'Hello world!'
 
 
 '''
@@ -86,6 +82,8 @@ def qrcode():
             return "Request id is not found in "
 
     if request.method == 'POST':
+        print(request.files)
+        print(request.form)
         image = Image.open(request.files.get("Image"))
         if image != None:
             reader = QR.QRCodeReader()
@@ -133,9 +131,13 @@ def groups():
 		groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
 	return json.dump(groups)
     
-
 @app.route("/test")
 def test():
     return render_template("test.html")
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
 if __name__ == "__main__":
     app.run(debug = True)
