@@ -4,32 +4,84 @@
         <meta charset="UTF-8">
             <title>TEST</title>
             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-                </head>
+    </head>
     <body>
-        <!--nav for the navigation bar-->
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-            <a class="navbar-brand" href="#">BackEndTest</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
-                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/">Index <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/qrcodeget">qrcodeget</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/qrcodepost">qrcodepost</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/groups">groups</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+        <h1>Back End Test Page</h1>
+        <br />
+        <div>
+            <h3>QR code GET</h3>
+            <script type="text/javascript">
+            $(document).ready(function() {
+                var id = $('#id');
+                var url = $('#url');
+            });
+            function submit() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url.value, true);
+                xhr.setRequestHeader("Content-type", "multipart/form-data");
+                xhr.onreadystatechange = function () {
+                  if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    alert(xhr.responseText);
+                  }
+                };
+                xhr.send(id.value);
+            }
+        </script>
+            <h6>id:</h6>
+            <input type="text" name="enter" class="enter" value="" id="id"/>
+            <input type="button" value="Request" onclick="submit();"/>
+        </div>
+        <br />
+        <div>
+            <h3>QR code POST</h3>
+            <script type="text/javascript">
+            $(document).ready(function() {
+                var file = $('#file');
+                var url  = $('#url');
+            });
+            function submit() {
+                  var xhr = new XMLHttpRequest();
+                  xhr.open("POST", url.value, true);
+                  xhr.setRequestHeader("Content-type", "multipart/form-data");
+                  xhr.onreadystatechange = function () {
+                      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                          alert(xhr.responseText);
+                      }
+                  };
+                  xhr.send(file);
+            }
+            </script>
+            <h6>file:</h6>
+            <input type="file" name="myFile" class="enter" id="file"/>
+            <input type="button" value="Request" onclick="submit();"/>
+        </div>
+        <br />
+        <div>
+            <h3>Groups</h3>
+            <script type="text/javascript">
+            $(document).ready(function() {
+                var keywords = $('#keywords');
+                var url = $('#url');
+            });
+            function submit() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url.value, true);
+                xhr.setRequestHeader("Content-type", "multipart/form-data");
+                xhr.onreadystatechange = function () {
+                  if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    alert(xhr.responseText);
+                  }
+                };
+                xhr.send(keywords.value);
+            }
+            </script>
+            <h6>keywords:</h6>
+            <input type="text" name="enter" class="enter" value="" id="keywords"/>
+            <input type="button" value="Request" onclick="submit();"/>
+        </div>
+        <br />
+        <h4>url:</h4>
+        <input type="text" name="enter" class="enter" value="" id="url"/>
     </body>
 </html>

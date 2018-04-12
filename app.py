@@ -7,8 +7,9 @@ import json
 from tempfile import NamedTemporaryFile
 from shutil import copyfileobj
 
+
 # other published packages
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -66,19 +67,21 @@ GET:
 def qrcode():
     if request.method == 'GET':
         id = request.args.get('id')
+        if id == None:
+            return "Invalid"
+        try:
+            int(id)
+        except ValueError:
+            return "Invalid."
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
             image = reader.generate_image(qrInfo.url)
             # Convert the image into Bytes
-            image.save("/tmp/img{}.jpeg".format(qrInfo.id), "JPEG")
-            tempFileObj = NamedTemporaryFile(mode='w+b',suffix='jpg')
-            tempImg = open("/tmp/img{}.jpeg".format(qrInfo.id),'rb')
-            copyfileobj(tempImg,tempFileObj)
-            tempImg.close()
-            os.remove("/tmp/img{}.jpeg".format(qrInfo.id))
-            tempFileObj.seek(0,0)
-            return send_file(tempFileObj, as_attachment=True, attachment_filename='myfile.jpg')
+            file = io.BytesIO()
+            image.save(file, 'jpeg')
+            file.seek(0)
+            return send_file(file, as_attachment=True, attachment_filename='myfile.jpg')
         else:
             return "Request id is not found in "
 
@@ -131,5 +134,8 @@ def groups():
 	return json.dump(groups)
     
 
+@app.route("/test")
+def test():
+    return render_template("test.html")
 if __name__ == "__main__":
     app.run(debug = True)

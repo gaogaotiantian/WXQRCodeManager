@@ -14,8 +14,3 @@
 !/LICENSE
 !/README.md
 !/templates/*.html
-
-# Added by boning
-/venv/.*
-CodeImg.jpeg
-/.idea/.*
