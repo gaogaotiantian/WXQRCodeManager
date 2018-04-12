@@ -5,7 +5,7 @@ import os
 import io
 
 # other published packages
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -125,5 +125,8 @@ GET:
 def groups():
     pass
 
+@app.route("/test")
+def test():
+    return render_template("test.html")
 if __name__ == "__main__":
     app.run(debug = True)
