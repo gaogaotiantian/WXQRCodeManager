@@ -3,6 +3,7 @@
 # python built-in packages
 import os
 import io
+import json
 from tempfile import NamedTemporaryFile
 from shutil import copyfileobj
 
@@ -123,7 +124,12 @@ GET:
 '''
 @app.route('/api/v1/groups', methods=['GET'])
 def groups():
-    pass
+	keywords = request.args.get ("keywords")
+	groups = []
+	for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
+		groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
+	return json.dump(groups)
+    
 
 if __name__ == "__main__":
     app.run(debug = True)
