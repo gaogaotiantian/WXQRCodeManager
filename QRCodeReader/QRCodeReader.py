@@ -78,7 +78,7 @@ class QRCodeReader:
         im = Image.open(image_path)
         rec=(left+width/6,top-width/2,left+width,top)
         c_im=im.crop(rec)
-        c_im.show()
+        #c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         #print(text)
         return text
