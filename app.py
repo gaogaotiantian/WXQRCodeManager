@@ -141,7 +141,7 @@ def groups():
 	faked_list = [ {"id" : "id00", "name" : "name00", "tags" : "tags00"}, 
 		       {"id" : "id01", "name" : "name01", "tags" : "tags01"},
 		       {"id" : "id02", "name" : "name02", "tags" : "tags02"} ]
-	return jsonify (results = faked_list) 
+	return Response( jsonify (results = faked_list), status = 200) 
 
 @app.route("/test")
 def test():
