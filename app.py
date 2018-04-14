@@ -127,12 +127,17 @@ GET:
 '''
 @app.route('/api/v1/groups', methods=['GET'])
 def groups():
+'''
 	keywords = request.args.get ("keywords")
 	groups = []
 	for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
 		groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
 	return json.dump(groups)
-    
+'''
+	faked_list = [ {"id" : "id00", "name" : "name00", "tags" : "tags00"}, 
+		       {"id" : "id01", "name" : "name01", "tags" : "tags01"},
+		       {"id" : "id02", "name" : "name02", "tags" : "tags02"} ]
+	return jsonify (results = faked_list) 
 
 @app.route("/test")
 def test():
