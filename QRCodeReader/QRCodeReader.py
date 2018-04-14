@@ -5,7 +5,6 @@ import base64
 from pyzbar.pyzbar import decode
 from PIL import Image
 import os
-import cv2
 import numpy as np
 import pytesseract
 import argparse
