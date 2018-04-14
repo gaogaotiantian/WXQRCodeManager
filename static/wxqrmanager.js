@@ -1,4 +1,14 @@
 $(function() {
+    $('#upload-file-input').change(function() {
+        var fileName = $('#upload-file-input')[0].files[0].name;
+        console.log(fileName);
+        if (fileName) {
+            $('#upload-file-label').text(fileName);
+        } else {
+            $('#upload-file-label').text("选择文件");
+        }
+    });
+
     $('#upload_form').submit(function(e) {
         e.preventDefault();
         $.ajax({

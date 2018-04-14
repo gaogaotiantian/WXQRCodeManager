@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -30,12 +31,16 @@
 
       <div class="row tab-pane show active" role="tabpanel" aria-labelledby="nav-upload-tab" id="upload_div">
         <div class="col">
-          <h3>上传图片</h3>
           <form id="upload_form" action="/api/v1/qrcode" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-              <input type="file" name="img" class="form-control-file">
+            <div class="input-group">
+              <div class="custom-file">
+                <input type="file" name="img" class="custom-file-input" id="upload-file-input">
+                <label id="upload-file-label" class="custom-file-label" for="upload-file-input">选择文件</label>
+              </div>
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">提交</button>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary">提交</button>
           </form>
           <div id="upload_result">
           </div>
@@ -44,21 +49,27 @@
 
       <div class="row tab-pane" role="tabpanel" aria-labelledby="nav-download-tab" id="download_div">
         <div class="col">
-          <h3>下载二维码</h3>
-          <input id="download_text" type="text" placeholder="input id">
-          <button id="download_button" type=button class="btn btn-primary">GET</button>
-          <br>
+          <div class="input-group">
+            <input id="download_text" type="text" class="form-control" placeholder="input id">
+            <div class="input-group-append">
+              <button id="download_button" type=button class="btn btn-primary">GET</button>
+            </div>
+          </div>
           <img id="download_img"></img>
         </div>
       </div>
       
       <div class="row tab-pane" role="tabpanel" aria-labelledby="nav-search-tab" id="search_div">
-          <h3>搜索群</h3>
-          <input id="search_text" type="text" placeholder="input keywords">
-          <button id="search_button" type=button class="btn btn-primary">GET</button>
-          <br>
+        <div class="col">
+          <div class="input-group">
+            <input id="search_text" type="text" class="form-control" placeholder="input keywords">
+            <div class="input-group-append">
+              <button id="search_button" type=button class="btn btn-primary">搜索</button>
+            </div>
+          </div>
           <div id="search_result">
           </div>
+        </div>
       </div>
     </div>
   </div>
