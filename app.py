@@ -138,9 +138,9 @@ def groups():
 	return json.dump(groups)
 
 '''
-	faked_list = [ {"id" : "id00", "name" : "name00", "tags" : "tags00"}, 
-		       {"id" : "id01", "name" : "name01", "tags" : "tags01"},
-		       {"id" : "id02", "name" : "name02", "tags" : "tags02"} ]
+	faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
+		       {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
+		       {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
 	return Response( jsonify (results = faked_list), status = 200) 
 
 @app.route("/test")
