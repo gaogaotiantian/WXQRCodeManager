@@ -2,12 +2,16 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-            <title>TEST</title>
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+        <title>TEST</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
         <h1>Back End Test Page</h1>
+        <br />
+        <h4>url:</h4>
+        <input type="text" name="enter" class="enter" value="" id="url"/>
         <br />
         <div>
             <h3>QR code GET</h3>
@@ -16,21 +20,29 @@
                 var id = $('#id');
                 var url = $('#url');
             });
-            function submit() {
+            function submit1() {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", url.value, true);
                 xhr.setRequestHeader("Content-type", "multipart/form-data");
                 xhr.onreadystatechange = function () {
-                  if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    alert(xhr.responseText);
+                  if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                    if (xhr.responseText.length < 100){
+                        alert(xhr.responseText);
+                    }
+                    else{
+                    var image = new Image();
+                    image.src = url.value;
+                    document.body.appendChild(image);
+                    }
+                  }
+                  else{
+                    alert(xhr.status);
                   }
                 };
                 xhr.send(id.value);
             }
         </script>
-            <h6>id:</h6>
-            <input type="text" name="enter" class="enter" value="" id="id"/>
-            <input type="button" value="Request" onclick="submit();"/>
+            <input type="button" value="Request" onclick="submit1();"/>
         </div>
         <br />
         <div>
@@ -40,12 +52,12 @@
                 var file = $('#file');
                 var url  = $('#url');
             });
-            function submit() {
+            function submit2() {
                   var xhr = new XMLHttpRequest();
                   xhr.open("POST", url.value, true);
                   xhr.setRequestHeader("Content-type", "multipart/form-data");
                   xhr.onreadystatechange = function () {
-                      if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                      if(xhr.readyState == XMLHttpRequest.DONE) {
                           alert(xhr.responseText);
                       }
                   };
@@ -54,7 +66,7 @@
             </script>
             <h6>file:</h6>
             <input type="file" name="myFile" class="enter" id="file"/>
-            <input type="button" value="Request" onclick="submit();"/>
+            <input type="button" value="Request" onclick="submit2();"/>
         </div>
         <br />
         <div>
@@ -64,12 +76,12 @@
                 var keywords = $('#keywords');
                 var url = $('#url');
             });
-            function submit() {
+            function submit3() {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", url.value, true);
                 xhr.setRequestHeader("Content-type", "multipart/form-data");
                 xhr.onreadystatechange = function () {
-                  if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                  if(xhr.readyState == XMLHttpRequest.DONE) {
                     alert(xhr.responseText);
                   }
                 };
@@ -78,10 +90,8 @@
             </script>
             <h6>keywords:</h6>
             <input type="text" name="enter" class="enter" value="" id="keywords"/>
-            <input type="button" value="Request" onclick="submit();"/>
+            <input type="button" value="Request" onclick="submit3();"/>
         </div>
         <br />
-        <h4>url:</h4>
-        <input type="text" name="enter" class="enter" value="" id="url"/>
     </body>
 </html>
