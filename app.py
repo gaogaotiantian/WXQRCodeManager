@@ -131,7 +131,7 @@ GET:
 
     Get a list of groups that match the key words.
 '''
-@app.route('/api/v1/groups', methods=['GET'])
+@app.route('/api/v1/groups', methods=['GET', 'POST'])
 def groups():
     '''
         keywords = request.args.get ("keywords")
@@ -141,10 +141,28 @@ def groups():
         return json.dump(groups)
     
     '''
-    faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
-               {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
-               {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
-    return make_response(jsonify ({'results':faked_list}), 200) 
+    if request.method == 'GET':
+        faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
+                   {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
+                   {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
+        return make_response(jsonify ({'results':faked_list}), 200) 
+    elif request.method == 'POST':
+        id = request.args.get('id')
+        name = request.args.get('name')
+        tags = request.args.get('tags')
+        if id == None or name == None or tags == None:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+        qrInfo = QRCodeDb.query.get(id)
+        if qrInfo != None:
+            qrInfo.name = name
+            qrInfo.tags = tags
+            db.session.commit()
+        else:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+
+        return make_response(jsonify({}), 201)
+
+
 
 @app.route("/test")
 def test():
