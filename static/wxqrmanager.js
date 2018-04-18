@@ -119,9 +119,8 @@ $(function() {
     $('body').on('click', 'img.qrcode-img', function() {
         $('#display-group-name').text($(this).attr('qrcode-name'));
         $('#display-group-description').text($(this).attr('qrcode-description'))
-        $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1&" + $(this).attr('qrcode-id'));
-        $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1");
-        $('#display-img-download').attr('href', "/api/v1/qrcode?id=1");
+        $('#display-img-preview').attr('src', "/api/v1/qrcode?id=" + $(this).attr('qrcode-id'));
+        $('#display-img-download').attr('href', "/api/v1/qrcode?id=" + $(this).attr('qrcode-id'));
         $('#display-modal').modal("show");
     });
     listPage();
