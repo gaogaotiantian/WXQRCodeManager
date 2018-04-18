@@ -40,6 +40,7 @@ class QRCodeDb(db.Model):
     expire_time  = db.Column(db.Float)
     name         = db.Column(db.String(256))
     tags         = db.Column(db.String(256))
+    description  = db.Column(db.Text)
     session_id   = db.Column(db.String(32))
     session_time = db.Column(db.Float)
     search_text  = db.Column(db.Text)
@@ -49,6 +50,7 @@ class QRCodeDb(db.Model):
         ret = {}
         ret['id'] = self.id
         ret['name'] = self.name
+        ret['description'] = self.description
         ret['tags'] = self.tags.strip().split()
         return ret
 
@@ -124,11 +126,12 @@ def qrcode():
                 qrInfo.add_time = time.time()
                 qrInfo.name = qrcode.name
                 qrInfo.tags = ""
+                qrInfo.description = ""
                 db.session.add(qrInfo)
                 db.session.commit()
-                return make_response(jsonify({"id":qrInfo.id, "name":qrInfo.name}), 201)
+                return make_response(jsonify(qrInfo.to_dict()), 201)
             else:
-                return make_response(jsonify({"id":urlDb.id, "name":urlDb.name}), 200)
+                return make_response(jsonify(urlDb.to_dict()), 200)
 
     return make_response("Invalid request method, only support GET or POST", 405)
 

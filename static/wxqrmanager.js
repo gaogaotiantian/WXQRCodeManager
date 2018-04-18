@@ -17,7 +17,7 @@ getGroupDom = function(data) {
     }
     if (data.description) {
         $template.find('.card-text').text(data.description);
-        $template.find('.qrcode-img').attr('qrcode-description', data.name);
+        $template.find('.qrcode-img').attr('qrcode-description', data.description);
     }
     return $template
 }
@@ -81,7 +81,9 @@ $(function() {
                     $('#upload-error-div').hide();
                     $('#upload-success-div').show();
                     $('#upload-success-div').text("上传成功！");
-                    $('#upload-data-name-input').val(d.name)
+                    $('#upload-data-name-input').val(d.name);
+                    $('#upload-data-description-input').val(d.description);
+                    $('#upload-data-tags-input').val(d.tags.join(" "));
                     $('#upload-confirm-button').removeClass("disabled");
                 },
                 error: function(d, st, xhr) {
@@ -116,6 +118,7 @@ $(function() {
 
     $('body').on('click', 'img.qrcode-img', function() {
         $('#display-group-name').text($(this).attr('qrcode-name'));
+        $('#display-group-description').text($(this).attr('qrcode-description'))
         $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1&" + $(this).attr('qrcode-id'));
         $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1");
         $('#display-img-download').attr('href', "/api/v1/qrcode?id=1");
