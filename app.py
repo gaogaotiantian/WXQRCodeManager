@@ -7,7 +7,7 @@ import json
 
 
 # other published packages
-from flask import Flask, request, send_file, render_template, make_response
+from flask import Flask, request, send_file, render_template, make_response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -20,6 +20,9 @@ from QRCodeReader import QRCodeReader as QR
 DATABASE_URL = None
 if os.environ.get('DATABASE_URL') != None:
     DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if os.environ.get('TESSERACT_PATH') != None:
+    QR.set_tesseract_path(os.environ.get('TESSERACT_PATH'))
 
 app = Flask(__name__, static_url_path = '/static')
 
@@ -62,39 +65,39 @@ def qrcode():
     if request.method == 'GET':
         id = request.args.get('id')
         if id == None:
-            return make_response("You need to input a valid id", 400)
+            return make_response(jsonify({"err_msg":"You need to input a valid id"}), 400)
         try:
             int(id)
         except:
-            return make_response("You need to input a valid id", 400)
+            return make_response(jsonify({"err_msg":"You need to input a valid id"}), 400)
 
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
-            image = reader.generate_image(qrInfo.url)
+            image = reader.generate_image(qrInfo)
             # Convert the image into Bytes
             file = io.BytesIO()
             image.save(file, 'jpeg')
             file.seek(0)
             return send_file(file, as_attachment=True, attachment_filename='myfile.jpg')
         else:
-            return make_response("Cannot find the id in database", 200)
+            return make_response(jsonify({"err_msg":"Cannot find the id in database"}), 404)
 
     if request.method == 'POST':
         file = request.files.get("img")
         if file == None:
-            return make_response("Cannot find the attached file. It must be a form-data contains the key pair 'img':imgFile", 400)
+            return make_response(jsonify({"err_msg":"Cannot find the attached file. It must be a form-data contains the key pair 'img':imgFile"}), 400)
         image = None
         try:
             image = Image.open(file)
         except:
-            return make_response("The file is not a valid image", 400)
+            return make_response(jsonify({"err_msg":"The file is not a valid image"}), 400)
 
         if image != None:
             reader = QR.QRCodeReader()
             qrcode = reader.get_qrcode_data(image)
             if qrcode == None:
-                return make_response("Cannot read QRCode from the image.", 200)
+                return make_response(jsonify({"err_msg":"Cannot read QRCode from the image."}), 400)
             url = qrcode.url
             # DEBUG: Need to add QRCode checker
             # Check same QRcode
@@ -109,11 +112,11 @@ def qrcode():
                 qrInfo.tags = "Test"
                 db.session.add(qrInfo)
                 db.session.commit()
-                return make_response("Saved successfully!", 200)
+                return make_response(jsonify({"id":qrInfo.id, "name":qrInfo.name}), 201)
             else:
-                return make_response("QRCode already exists, didn't save.", 200)
+                return make_response(jsonify({"id":urlDb.id, "name":urlDb.name}), 200)
 
-    return make_response("Invalid request method, only support GET or POST", 400)
+    return make_response("Invalid request method, only support GET or POST", 405)
 
 
 '''
@@ -130,18 +133,18 @@ GET:
 '''
 @app.route('/api/v1/groups', methods=['GET'])
 def groups():
-'''
-	keywords = request.args.get ("keywords")
-	groups = []
-	for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
-		groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
-	return json.dump(groups)
-
-'''
-	faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
-		       {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
-		       {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
-	return Response( jsonify (results = faked_list), status = 200) 
+    '''
+        keywords = request.args.get ("keywords")
+        groups = []
+        for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
+            groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
+        return json.dump(groups)
+    
+    '''
+    faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
+               {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
+               {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
+    return make_response(jsonify ({'results':faked_list}), 200) 
 
 @app.route("/test")
 def test():

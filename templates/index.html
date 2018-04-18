@@ -9,69 +9,126 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js" integrity="sha384-lZmvU/TzxoIQIOD9yQDEpvxp6wEU32Fy0ckUgOH4EIlMOCdR823rg4+3gWRwnX1M" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
 <script src="/static/wxqrmanager.js" type="text/javascript"></script>
 </head>
 <body>
   <div class="container">
+    <div class="row pt-2" id="header-div">
+      <div class="col-1 col-md-2 px-1">
+        Logo
+      </div>
+      <div class="col-8 col-md-8 px-1">
+        <div class="input-group">
+          <input id="search_text" type="text" class="form-control" placeholder="input keywords">
+          <div class="input-group-append">
+            <button id="search_button" type="button" class="btn"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 col-md-2 px-1">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#upload-modal">上传二维码</button>
+      </div>
+    </div>
+
+    <div class="row pt-3">
+      <div class="card d-none my-2" id="card-tmpl">
+        <div class="card-body p-2">
+          <div class="row">
+            <div class="col-9">
+              <h5 class="card-title">
+              </h5>
+              <div class="card-badges">
+              </div>
+              <p class="card-text">
+              </p>
+            </div>
+            <div class="col-3 py-0 pl-0 pr-2">
+              <a href="#"><img class="qrcode-img img-fluid" src='/api/v1/qrcode?id=1'></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col card-columns" id="group-list-div">
+      </div>
+    </div>
     
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" href="#upload_div" id="nav-upload-tab" data-toggle="tab" role="tab" aria-controls="upload_div" aria-selected="true">上传图片</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#download_div" id="nav-download-tab" data-toggle="tab" role="tab" aria-controls="download_div" aria-selected="false">下载二维码</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#search_div" id="nav-search-tab" data-toggle="tab" role="tab" aria-controls="search_div" aria-selected="false">搜索群</a>
-      </li>
-    </ul>
-    <div class="tab-content">
-
-      <div class="row tab-pane show active" role="tabpanel" aria-labelledby="nav-upload-tab" id="upload_div">
-        <div class="col">
-          <form id="upload_form" action="/api/v1/qrcode" method="post" enctype="multipart/form-data">
-            <div class="input-group">
-              <div class="custom-file">
-                <input type="file" name="img" class="custom-file-input" id="upload-file-input">
-                <label id="upload-file-label" class="custom-file-label" for="upload-file-input">选择文件</label>
+    <div class="modal fade" id="upload-modal" tabindex=-1 role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"> 上传二维码 </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img id="upload-img-preview" class="img-thumbnail collapse">
+            <form id="upload-form" action="/api/v1/qrcode" method="post" enctype="multipart/form-data" class="py-2">
+              <div class="input-group">
+                <div class="custom-file">
+                  <input type="file" name="img" class="custom-file-input" id="upload-file-input">
+                  <label id="upload-file-label" class="custom-file-label" for="upload-file-input">选择文件</label>
+                </div>
               </div>
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+            <div id="upload-success-div" class="alert alert-success collapse" role="alert">
+            </div>
+            <div id="upload-error-div" class="alert alert-danger collapse" role="alert">
+            </div>
+            <div id="upload-data-div" class=collapse>
+              <div id="upload-data-name-div">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">群名称</span>
+                  </div>
+                  <input type="text" id="upload-data-name-input" class=form-control>
+                </div>
+              </div>
+              <div id="upload-data-description-div">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">群描述</span>
+                  </div>
+                  <input type="text" id="upload-data-description-input" class=form-control>
+                </div>
+              </div>
+              <div id="upload-data-tags-div">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">群标签（以空格隔开）</span>
+                  </div>
+                  <input type="text" id="upload-data-tags-input" class=form-control>
+                </div>
               </div>
             </div>
-          </form>
-          <div id="upload_result">
           </div>
-        </div>
-      </div>
-
-      <div class="row tab-pane" role="tabpanel" aria-labelledby="nav-download-tab" id="download_div">
-        <div class="col">
-          <div class="input-group">
-            <input id="download_text" type="text" class="form-control" placeholder="input id">
-            <div class="input-group-append">
-              <button id="download_button" type=button class="btn btn-primary">GET</button>
-            </div>
-          </div>
-          <img id="download_img"></img>
-        </div>
-      </div>
-      
-      <div class="row tab-pane" role="tabpanel" aria-labelledby="nav-search-tab" id="search_div">
-        <div class="col">
-          <div class="input-group">
-            <input id="search_text" type="text" class="form-control" placeholder="input keywords">
-            <div class="input-group-append">
-              <button id="search_button" type=button class="btn btn-primary">搜索</button>
-            </div>
-          </div>
-          <div id="search_result">
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            <button type="button" id="upload-confirm-button" class="btn btn-primary disabled">确认</button>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="display-modal" tabindex=-1 role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="display-group-name">  </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img id="display-img-preview" class="img-thumbnail">
+          </div>
+          <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </body>
 </html>

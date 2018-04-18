@@ -3,11 +3,11 @@
 !/QRCodeReader/
 /QRCodeReader/__pycache__/
 
-!/pyzbar/
-/pyzbar/__pycache__/
-/pyzbar/tests/
-/pyzbar/scripts/
-/pyzbar/.*
+!/QRCodeReader/pyzbar/
+/QRCodeReader/pyzbar/__pycache__/
+/QRCodeReader/pyzbar/tests/
+/QRCodeReader/pyzbar/scripts/
+/QRCodeReader/pyzbar/.*
 
 !/templates/
 /templates/*

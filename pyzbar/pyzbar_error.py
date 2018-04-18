@@ -1,2 +1,0 @@
-class PyZbarError(Exception):
-    pass
