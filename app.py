@@ -4,6 +4,7 @@
 import os
 import io
 import json
+import time
 
 
 # other published packages
@@ -33,11 +34,23 @@ db = SQLAlchemy(app)
 
 class QRCodeDb(db.Model):
     __tablename__ = 'qrcode'
-    id          = db.Column(db.Integer, primary_key = True)
-    url         = db.Column(db.String(256))
-    expire_time = db.Column(db.Float)
-    name        = db.Column(db.String(256))
-    tags        = db.Column(db.String(256))
+    id           = db.Column(db.Integer, primary_key = True)
+    url          = db.Column(db.String(256))
+    add_time     = db.Column(db.Float)
+    expire_time  = db.Column(db.Float)
+    name         = db.Column(db.String(256))
+    tags         = db.Column(db.String(256))
+    session_id   = db.Column(db.String(32))
+    session_time = db.Column(db.Float)
+    search_text  = db.Column(db.Text)
+    read         = db.Column(db.Integer, default = 0)
+
+    def to_dict(self):
+        ret = {}
+        ret['id'] = self.id
+        ret['name'] = self.name
+        ret['tags'] = self.tags.strip().split()
+        return ret
 
 db.create_all()
 
@@ -108,8 +121,9 @@ def qrcode():
                 qrInfo.id = maxId + 1 if maxId != None else 1
                 qrInfo.url = url
                 qrInfo.expire_time = 0.0
-                qrInfo.name = "None"
-                qrInfo.tags = "Test"
+                qrInfo.add_time = time.time()
+                qrInfo.name = qrcode.name
+                qrInfo.tags = ""
                 db.session.add(qrInfo)
                 db.session.commit()
                 return make_response(jsonify({"id":qrInfo.id, "name":qrInfo.name}), 201)
@@ -142,20 +156,44 @@ def groups():
     
     '''
     if request.method == 'GET':
-        faked_list = [ {"id" : 1234, "name" : "name00", "tags" : ["tags00", "tags01", "tags02"] }, 
-                   {"id" : 1235, "name" : "name01", "tags" : ["tags01", "tags03", "tags04"] },
-                   {"id" : 1236, "name" : "name02", "tags" : ["tags02", "tags04", "tags05"] } ]
-        return make_response(jsonify ({'results':faked_list}), 200) 
+        keywords_str = request.args.get("keywords")
+        keywords = []
+        if keywords_str != None:
+            keywords = keywords_str.strip().split()
+
+        limit = 20
+        limit_str = request.args.get("limit")
+        if limit_str != None:
+            try:
+                limit = limit_str
+            except:
+                pass
+
+        q = QRCodeDb.query
+        for keyword in keywords:
+            q = q.filter(QRCodeDb.search_text.ilike("%"+keyword+"%"))
+
+        q = q.limit(limit)
+        ret_list = [qrcode.to_dict() for qrcode in q.all()]
+
+        return make_response(jsonify ({'results':ret_list}), 200) 
     elif request.method == 'POST':
-        id = request.args.get('id')
-        name = request.args.get('name')
-        tags = request.args.get('tags')
-        if id == None or name == None or tags == None:
+        data = request.json
+        if data == None:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+        try:
+            id = data['id']
+            name = data['name']
+            tags = data['tags']
+            description = data['description']
+        except:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             qrInfo.name = name
             qrInfo.tags = tags
+            qrInfo.description = description
+            qrInfo.search_text = " ".join([name, tags, description])
             db.session.commit()
         else:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)

@@ -42,16 +42,21 @@ uploadQrcode = function() {
     $.ajax({
         url: '/api/v1/groups',
         type: 'post',
-        data: {
+        contentType: 'application/json',
+        data: JSON.stringify({
             "id":$('#upload-data-div').data("id"),
             "name":$('#upload-data-name-input').val(),
             "description":$('#upload-data-description-input').val(),
             "tags":$('#upload-data-tags-input').val()
-        },
+        }),
         success: function(d, st, xhr) {
             $('#upload-file-input').val('');
             $('#upload-file-label').text('选择文件');
             $('#upload-data-div').hide();
+            $('#upload-img-preview').hide();
+            $('#upload-success-div').hide();
+            $('#upload-error-div').hide();
+            $('#upload-modal').modal('hide');
         }
     });
 };
@@ -101,6 +106,10 @@ $(function() {
         listPage(data = {"keywords":$('#search_text').val()});
     });
 
+    $('#upload-confirm-button').click(function(){
+        uploadQrcode();
+    });
+
     $('body').on("click", "a.badge", function() {
         listPage(data = {"keywords":$(this).text()});
     });
@@ -109,6 +118,7 @@ $(function() {
         $('#display-group-name').text($(this).attr('qrcode-name'));
         $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1&" + $(this).attr('qrcode-id'));
         $('#display-img-preview').attr('src', "/api/v1/qrcode?id=1");
+        $('#display-img-download').attr('href', "/api/v1/qrcode?id=1");
         $('#display-modal').modal("show");
     });
     listPage();
