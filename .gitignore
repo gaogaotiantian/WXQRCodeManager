@@ -13,6 +13,10 @@
 /templates/*
 !/templates/*.html
 
+!/test/
+/test/*
+!/test/*.py
+
 !/static/
 /static/*
 !/static/*.js
