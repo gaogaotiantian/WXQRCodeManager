@@ -2,6 +2,7 @@
 
 !/QRCodeReader/
 /QRCodeReader/__pycache__/
+/QRCodeReader/.*
 
 !/QRCodeReader/pyzbar/
 /QRCodeReader/pyzbar/__pycache__/
