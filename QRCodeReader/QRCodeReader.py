@@ -2,7 +2,7 @@
 import pyqrcode
 from io import BytesIO
 import base64
-from pyzbar.pyzbar import decode
+from .pyzbar.pyzbar import decode
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -10,12 +10,13 @@ import os
 import numpy as np
 import pytesseract
 
-from matplotlib import pyplot as plt
-
+def set_tesseract_path(path):
+    pytesseract.pytesseract.tesseract_cmd = path
 
 class QRCode:
-    def __init__(self, url = ''):
+    def __init__(self, url = '', name = ''):
         self.url = url
+        self.name = name
 
 class QRCodeReader:
     def __init__(self):
@@ -29,11 +30,14 @@ class QRCodeReader:
     return:
         a PIL image object
     '''
-    def generate_image(self, url):
+    def generate_image(self, qrcode_data):
+        url = qrcode_data.url
+        name = qrcode_data.name
         qr_code = pyqrcode.create(url)
         # scale it up so it's clear
         base64_str = qr_code.png_as_base64_str(scale=10)
         im = Image.open(BytesIO(base64.b64decode(base64_str)))
+        self.add_text(im, name)
         '''
         im=im.convert('RGBA')
         data=im.getdata()
@@ -55,7 +59,6 @@ class QRCodeReader:
         #get length height etc. for the qrcode image 
         position=test[0].rect
         position=str(position)
-        print(position)
         coordinate=np.zeros(8)
         count=0
         for i in range(len(position)):
@@ -74,7 +77,7 @@ class QRCodeReader:
 
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype("arial.ttf", 35)
+        font = ImageFont.truetype("wqy-zenhei.ttc", 35)
         x=left+width/10
         y=top-width/5
         #print(x,y)
@@ -94,7 +97,8 @@ class QRCodeReader:
         d = decode(image)
         if len(d) == 0:
             return None
-        qrcode = QRCode(url = d[0].data.decode('utf-8'))
+        name = self.get_group_name(image)
+        qrcode = QRCode(url = d[0].data.decode('utf-8'), name = name)
 
         return qrcode
     '''
@@ -108,7 +112,7 @@ class QRCodeReader:
 
         return d[0].rect
         '''
-    def get_text(self, image):
+    def get_group_name(self, image):
         #image = Image.open(image)
         
         test=decode(image)
@@ -138,7 +142,6 @@ class QRCodeReader:
         im = image
         rec=(left+width/10,top-width/3,left+width,top)
         c_im=im.crop(rec)
-        c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         return text
 
@@ -147,12 +150,12 @@ Simple test code can he bere
 '''
 if __name__ == '__main__':
     reader = QRCodeReader()
-    im = reader.generate_image("abc")
+    im = reader.generate_image(QRCode(url = "abc", name = "name"))
     image=reader.add_text(im,"ABC")
 
     assert(reader.get_qrcode_data(im).url == "abc")
     print("test passed")
-    text=reader.get_text(image)
+    text=reader.get_group_name(image)
     print(text)
     assert(text=="ABC")
     print("add_text passed")
