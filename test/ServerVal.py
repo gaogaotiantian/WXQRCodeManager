@@ -24,30 +24,30 @@ class qrcode_get(unittest.TestCase):
         assert requests.get(url+'/')
 
     def test_get_id1(self):
+        #print(qrInfo = QRCodeDb.query.get(id))
         r = requests.get(url + '/api/v1/qrcode?id=1')
-        #print(requests.get(url + '/api/v1/qrcode?id=1').text)
-        assert r
-        assert r.status_code == 200
+        assert r.text
 
     def test_get_id10000(self):
         r = requests.get(url + '/api/v1/qrcode?id=10000')
-        assert r.text == "Cannot find the id in database"
-        assert r.status_code == 200
+        assert r.json()["err_msg"] == "Cannot find the id in database"
+        assert r.status_code == 404
 
     def test_get_invald_id(self):
         r = requests.get(url + '/api/v1/qrcode?id=stub')
-        assert r.text == "You need to input a valid id"
+        assert r.json()["err_msg"] == "You need to input a valid id"
         assert r.status_code == 400
 
     def test_get_noId(self):
         r = requests.get(url + '/api/v1/qrcode')
-        assert r.text == "You need to input a valid id"
+        assert r.json()["err_msg"] == "You need to input a valid id"
         assert r.status_code == 400
 
     def test_get_random_argument(self):
         r = requests.get(url + '/api/v1/qrcode?stub=stub')
-        assert r.text == "You need to input a valid id"
+        assert r.json()["err_msg"] == "You need to input a valid id"
         assert r.status_code == 400
+
 
 if __name__ == "__main__":
     unittest.main()
