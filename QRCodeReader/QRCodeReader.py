@@ -77,7 +77,7 @@ class QRCodeReader:
 
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype("./wqy-zenhei.ttc", 35)
+        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 35)
         x=left+width/10
         y=top-width/5
         #print(x,y)
