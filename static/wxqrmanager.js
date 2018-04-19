@@ -4,7 +4,7 @@ getGroupDom = function(data) {
     $template.removeClass('d-none');
     $template.removeAttr('id');
     if (data.id) {
-        $template.find('.qrcode-img').attr('qrcode-id', data.id.toString());
+        $template.find('.qrcode-img').attr('qrcode-id', data.id.toString()).attr('src', '/api/v1/qrcode?id='+data.id);
     }
     if (data.name) {
         $template.find('.card-title').text(data.name);
@@ -87,7 +87,7 @@ $(function() {
                 contentType: false,
                 success: function(d, st, xhr) {
                     $('#upload-data-div').data("id", d.id)
-                    $('#upload-img-preview').attr('src', '/api/v1/qrcode?id=1');
+                    $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
                     $('#upload-img-preview').show();
                     $('#upload-data-div').show();
                     $('#upload-error-div').hide();
