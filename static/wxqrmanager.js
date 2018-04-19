@@ -12,7 +12,7 @@ getGroupDom = function(data) {
     }
     if (data.tags) {
         for (idx in data.tags) {
-            $template.find('.card-badges').append($('<a>').attr('href', '#').addClass("badge badge-pill badge-primary mx-1").text(data.tags[idx]));
+            $template.find('.card-badges').append($('<a>').attr('href', '#').addClass("badge badge-primary mr-1 badge-add").text(data.tags[idx]));
         }
     }
     if (data.description) {
@@ -35,6 +35,18 @@ listPage = function(data = {}) {
             
         }
     })
+}
+
+refreshTags = function() {
+    $('#tags-list-div').empty();
+    var tags = $('#tags-list-div').data("tags").split(' ');
+    for (var idx in tags) {
+        var tag = tags[idx];
+        if (tag != "") {
+            $('#tags-list-div').append($('<a>').attr('href', '#').addClass("badge badge-primary mr-1 badge-remove").text(tag+" ").append($('<i>').addClass("fas fa-times")));
+        }
+    }
+    listPage(data = {"keywords":$('#tags-list-div').data("tags")});
 }
 
 // Upload functions
@@ -112,8 +124,29 @@ $(function() {
         uploadQrcode();
     });
 
-    $('body').on("click", "a.badge", function() {
-        listPage(data = {"keywords":$(this).text()});
+    $('#tags-list-div').data("tags", "");
+
+    $('body').on("click", "a.badge.badge-add", function() {
+        var tags = $('#tags-list-div').data("tags").split(' ');
+        if (tags[0] == "") {
+            $('#tags-list-div').data("tags", $(this).text());
+        } else if (tags.indexOf($(this).text()) < 0) {
+            tags.push($(this).text());
+            console.log(tags)
+            console.log(tags.join(' '))
+            $('#tags-list-div').data("tags", tags.join(' '));
+        }
+        refreshTags();
+    });
+
+    $('body').on("click", "a.badge.badge-remove", function() {
+        var tags = $('#tags-list-div').data("tags").split(' ');
+        var idx = tags.indexOf($(this).text().split(' ')[0]);
+        if (idx > -1) {
+            tags.splice(idx, 1);
+            $('#tags-list-div').data("tags", tags.join(' '));
+            refreshTags();
+        }
     });
 
     $('body').on('click', 'img.qrcode-img', function() {

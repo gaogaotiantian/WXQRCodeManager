@@ -21,6 +21,7 @@
 !/static/
 /static/*
 !/static/*.js
+!/static/*.css
 
 !/.gitignore
 !/*.py
