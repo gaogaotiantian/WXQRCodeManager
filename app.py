@@ -89,7 +89,7 @@ def qrcode():
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
-            image = reader.generate_image(qrInfo)
+            image = reader.generate_image(QR.QRCode(url = qrInfo.url, name = qrInfo.name, date=""))
             # Convert the image into Bytes
             file = io.BytesIO()
             image.save(file, 'jpeg')
@@ -127,6 +127,7 @@ def qrcode():
                 qrInfo.name = qrcode.name
                 qrInfo.tags = ""
                 qrInfo.description = ""
+                qrInfo.search_text = qrcode.name
                 db.session.add(qrInfo)
                 db.session.commit()
                 return make_response(jsonify(qrInfo.to_dict()), 201)
