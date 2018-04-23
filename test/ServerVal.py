@@ -59,6 +59,22 @@ class groups_get(unittest.TestCase):
         if r.status_code != 200:
             self.skipTest("Server Error, Could not get root page")
 
+    def test_search_empty(self):
+        r = requests.get(url + '/api/v1/groups?keywords= ')
+
+    def test_search_no_arg(self):
+        r = requests.get(url + '/api/v1/groups')
+        assert r.status_code == 200
+
+    def test_search_invalid_arg(self):
+        r = requests.get(url + '/api/v1/groups?keywords=')
+        assert r.status_code == 200
+
+    def test_search_ucsb_and_qrget(self):
+        r = requests.get(url + '/api/v1/groups?keywords=ucsb')
+        assert r.status_code == 200
+        # unfinished, expect: parse returned json and qrget for all ids in the json
+
 
 class groups_post(unittest.TestCase):
     def setUp(self):
@@ -71,28 +87,28 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('input_url', type=str, nargs=1, help="Server URL to request. Usage: python3 ServerVal.py "
                                                              "http://127.0.0.1:5000")
-    parser.add_argument('test_code', nargs='?', default='5', help="1-5, default 5. 1 for qr_get, 2 for qr_post, 3 for "
-                                                                  "groups_get, 4 for groups_post, 5 for all test")
+    parser.add_argument('test_code', type=str, nargs='?', default='all')
     args = parser.parse_args()
     url = args.input_url[0]
-    test_code = int(args.test_code)
+    test_code = args.test_code
     try:
         r = requests.get(url + '/')
     except:
         print("Connection Error, Please check if server is running and check url address")
     else:
-        if test_code < 1 or test_code > 5:
-            print("Please enter test code from 1-5, -h for help")
+        if not test_code in ["qr_get","qr_post","groups_get","groups_post","all"]:
+            print("Please enter correct test code, type -h for help")
             exit(0)
-        elif test_code == 1:
+        elif test_code == "qr_get":
             suite = unittest.TestLoader().loadTestsFromTestCase(qrcode_get)
-        elif test_code == 2:
+        elif test_code == "qr_post":
             suite = unittest.TestLoader().loadTestsFromTestCase(qrcode_post)
-        elif test_code == 3:
+        elif test_code == "groups_get":
             suite = unittest.TestLoader().loadTestsFromTestCase(groups_get)
-        elif test_code == 4:
+        elif test_code == "groups_post":
             suite = unittest.TestLoader().loadTestsFromTestCase(groups_post)
         else:
             unittest.main(verbosity=2, argv=['first-arg-is-ignored'], exit=False)
+            exit(1)
         # ignore the first arg because parser, verbosity set to 2 for more test info, change to 1 for less
         unittest.TextTestRunner(verbosity=2).run(suite)
