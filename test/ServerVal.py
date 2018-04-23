@@ -97,7 +97,7 @@ if __name__ == "__main__":
         print("Connection Error, Please check if server is running and check url address")
     else:
         if not test_code in ["qr_get","qr_post","groups_get","groups_post","all"]:
-            print("Please enter correct test code, type -h for help")
+            print("Please enter correct test code, include: qr_get, qr_post, groups_get, groups_post")
             exit(0)
         elif test_code == "qr_get":
             suite = unittest.TestLoader().loadTestsFromTestCase(qrcode_get)
