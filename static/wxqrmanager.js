@@ -59,7 +59,8 @@ uploadQrcode = function() {
             "id":$('#upload-data-div').data("id"),
             "name":$('#upload-data-name-input').val(),
             "description":$('#upload-data-description-input').val(),
-            "tags":$('#upload-data-tags-input').val()
+            "tags":$('#upload-data-tags-input').val(),
+            "session_id":$('#upload-modal').data('session_id')
         }),
         success: function(d, st, xhr) {
             $('#upload-file-input').val('');
@@ -97,6 +98,7 @@ $(function() {
                     $('#upload-data-description-input').val(d.description);
                     $('#upload-data-tags-input').val(d.tags.join(" "));
                     $('#upload-confirm-button').removeClass("disabled");
+                    $('#upload-modal').data('session_id', d['session_id']);
                 },
                 error: function(d, st, xhr) {
                     $('#upload-img-preview').hide();

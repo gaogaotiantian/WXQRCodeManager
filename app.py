@@ -26,6 +26,9 @@ if os.environ.get('DATABASE_URL') != None:
 if os.environ.get('TESSERACT_PATH') != None:
     QR.set_tesseract_path(os.environ.get('TESSERACT_PATH'))
 
+# 10 minutes for timeout
+SESSION_TIMEOUT = 600
+
 app = Flask(__name__, static_url_path = '/static')
 
 
@@ -203,24 +206,15 @@ def groups():
             name = data['name']
             tags = data['tags']
             description = data['description']
-            # WARNING: : Waiting for front end to be updated
-            session_id = None
-            session_time = 0.0
-            try:
-                session_id = data['session_id']
-            except:
-                print("session_id is empty")
+            session_id = data['session_id']
         except:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
-            # WARNING: need to be uncommented after front end is updateds.
-            """
             if session_id != qrInfo.session_id:
-                return make_response(jsonify({"err_msg":"Unsafe behavior"}), 400)
-            if time.time() - session_time >= 100.0:
-                return make_response(jsonify({"err_msg":"Operation expired"}), 400)
-            """
+                return make_response(jsonify({"err_msg":"Invalid post"}), 400)
+            if time.time() - qrInfo.session_time >= SESSION_TIMEOUT:
+                return make_response(jsonify({"err_msg":"Timeout"}), 400)
             qrInfo.name = name
             qrInfo.tags = tags
             qrInfo.description = description
