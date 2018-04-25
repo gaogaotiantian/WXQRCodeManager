@@ -45,9 +45,10 @@ class QRCodeReader:
         bg_w, bg_h = result.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         result.paste(im,offset)
-
-        self.add_groupname(im, name)
-        self.add_date(im,date)
+        if(name!=''):
+            self.add_groupname(im, name)
+        if(url!=''):
+            self.add_date(im,date)
         '''
         im=im.convert('RGBA')
         data=im.getdata()
