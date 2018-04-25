@@ -77,38 +77,48 @@ uploadQrcode = function() {
 $(function() {
     $('#upload-file-input').change(function() {
         var fileName = $('#upload-file-input')[0].files[0].name;
+        var fileSize = $('#upload-file-input')[0].files[0].size;
         if (fileName) {
-            $('#upload-file-label').text(fileName);
-            var fdata = new FormData($("#upload-form")[0])
-            $.ajax({
-                url: '/api/v1/qrcode',
-                type: 'post',
-                data: fdata,
-                processData: false,
-                contentType: false,
-                success: function(d, st, xhr) {
-                    $('#upload-data-div').data("id", d.id)
-                    $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
-                    $('#upload-img-preview').show();
-                    $('#upload-data-div').show();
-                    $('#upload-error-div').hide();
-                    $('#upload-success-div').show();
-                    $('#upload-success-div').text("上传成功！");
-                    $('#upload-data-name-input').val(d.name);
-                    $('#upload-data-description-input').val(d.description);
-                    $('#upload-data-tags-input').val(d.tags.join(" "));
-                    $('#upload-confirm-button').removeClass("disabled");
-                    $('#upload-modal').data('session_id', d['session_id']);
-                },
-                error: function(d, st, xhr) {
-                    $('#upload-img-preview').hide();
-                    $('#upload-data-div').hide();
-                    $('#upload-success-div').hide();
-                    $('#upload-error-div').show();
-                    $('#upload-error-div').text(d.responseJSON.err_msg);
-                    $('#upload-confirm-button').addClass("disabled");
-                }
-            });
+            if (fileSize < 1024 * 1024 * 2) {
+                $('#upload-file-label').text(fileName);
+                var fdata = new FormData($("#upload-form")[0])
+                $.ajax({
+                    url: '/api/v1/qrcode',
+                    type: 'post',
+                    data: fdata,
+                    processData: false,
+                    contentType: false,
+                    success: function(d, st, xhr) {
+                        $('#upload-data-div').data("id", d.id)
+                        $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
+                        $('#upload-img-preview').show();
+                        $('#upload-data-div').show();
+                        $('#upload-error-div').hide();
+                        $('#upload-success-div').show();
+                        $('#upload-success-div').text("上传成功！");
+                        $('#upload-data-name-input').val(d.name);
+                        $('#upload-data-description-input').val(d.description);
+                        $('#upload-data-tags-input').val(d.tags.join(" "));
+                        $('#upload-confirm-button').removeClass("disabled");
+                        $('#upload-modal').data('session_id', d['session_id']);
+                    },
+                    error: function(d, st, xhr) {
+                        $('#upload-img-preview').hide();
+                        $('#upload-data-div').hide();
+                        $('#upload-success-div').hide();
+                        $('#upload-error-div').show();
+                        $('#upload-error-div').text(d.responseJSON.err_msg);
+                        $('#upload-confirm-button').addClass("disabled");
+                    }
+                });
+            } else {
+                $('#upload-img-preview').hide();
+                $('#upload-data-div').hide();
+                $('#upload-success-div').hide();
+                $('#upload-error-div').show();
+                $('#upload-error-div').text("File size is too large! Only support images under 2MB");
+                $('#upload-confirm-button').addClass("disabled");
+            }
         } else {
             $('#upload-file-label').text("选择文件");
         }
@@ -123,7 +133,9 @@ $(function() {
     });
 
     $('#upload-confirm-button').click(function(){
-        uploadQrcode();
+        if (!$(this).hasClass('disabled')) {
+            uploadQrcode();
+        }
     });
 
     $('#tags-list-div').data("tags", "");
