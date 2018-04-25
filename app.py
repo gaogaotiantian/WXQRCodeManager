@@ -54,7 +54,6 @@ class QRCodeDb(db.Model):
         ret['description'] = self.description
         ret['tags'] = self.tags.strip().split()
         ret['session_id'] = self.session_id
-        ret['session_time'] = self.session_time
         return ret
 
 db.create_all()
@@ -209,9 +208,8 @@ def groups():
             session_time = 0.0
             try:
                 session_id = data['session_id']
-                session_time = data['session_time']
             except:
-                print("session_id or session_time is empty")
+                print("session_id is empty")
         except:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
         qrInfo = QRCodeDb.query.get(id)
