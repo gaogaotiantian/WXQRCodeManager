@@ -4,6 +4,8 @@
 /QRCodeReader/__pycache__/
 /QRCodeReader/.*
 
+!/QRCodeReader/test_images/
+
 !/QRCodeReader/pyzbar/
 /QRCodeReader/pyzbar/__pycache__/
 /QRCodeReader/pyzbar/tests/
@@ -22,6 +24,8 @@
 /static/*
 !/static/*.js
 !/static/*.css
+
+*.pyc
 
 !/.gitignore
 !/*.py
