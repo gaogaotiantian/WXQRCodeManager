@@ -5,6 +5,7 @@ import os
 import io
 import json
 import time
+import base64
 
 
 # other published packages
@@ -52,6 +53,8 @@ class QRCodeDb(db.Model):
         ret['name'] = self.name
         ret['description'] = self.description
         ret['tags'] = self.tags.strip().split()
+        ret['session_id'] = self.session_id
+        ret['session_time'] = self.session_time
         return ret
 
 db.create_all()
@@ -117,7 +120,9 @@ def qrcode():
             # Check whether url is a valid wechat group url
             if not url.startswith("https://weixin.qq.com/g/"):
                 return make_response(jsonify({"err_msg":"The QRCode is not a valid WeChat group code."}), 400)
-            # DEBUG: Need to add QRCode checker
+            # Generate the session_id and session_time pair
+            session_id = base64.urlsafe_b64encode(os.urandom(24)).decode('utf-8')
+            session_time = time.time()
             # Check same QRcode
             urlDb = QRCodeDb.query.filter_by(url=url).first()
             if urlDb == None:
@@ -131,10 +136,15 @@ def qrcode():
                 qrInfo.tags = ""
                 qrInfo.description = ""
                 qrInfo.search_text = qrcode.name
+                qrInfo.session_id = session_id
+                qrInfo.session_time = session_time
                 db.session.add(qrInfo)
                 db.session.commit()
                 return make_response(jsonify(qrInfo.to_dict()), 201)
             else:
+                urlDb.session_id = session_id
+                urlDb.session_time = session_time
+                db.session.commit()
                 return make_response(jsonify(urlDb.to_dict()), 200)
 
     return make_response("Invalid request method, only support GET or POST", 405)
@@ -160,7 +170,7 @@ def groups():
         for elem in QRCodeDb.query.filter_by(keywords = keywords).all():
             groups.append ({"id":elem.id, "name":elem.name, "tags":elem.tags})
         return json.dump(groups)
-    
+
     '''
     if request.method == 'GET':
         keywords_str = request.args.get("keywords")
@@ -183,7 +193,8 @@ def groups():
         q = q.limit(limit)
         ret_list = [qrcode.to_dict() for qrcode in q.all()]
 
-        return make_response(jsonify ({'results':ret_list}), 200) 
+        return make_response(jsonify ({'results':ret_list}), 200)
+
     elif request.method == 'POST':
         data = request.json
         if data == None:
@@ -193,10 +204,25 @@ def groups():
             name = data['name']
             tags = data['tags']
             description = data['description']
+            # WARNING: : Waiting for front end to be updated
+            session_id = None
+            session_time = 0.0
+            try:
+                session_id = data['session_id']
+                session_time = data['session_time']
+            except:
+                print("session_id or session_time is empty")
         except:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
+            # WARNING: need to be uncommented after front end is updateds.
+            """
+            if session_id != qrInfo.session_id:
+                return make_response(jsonify({"err_msg":"Unsafe behavior"}), 400)
+            if time.time() - session_time >= 100.0:
+                return make_response(jsonify({"err_msg":"Operation expired"}), 400)
+            """
             qrInfo.name = name
             qrInfo.tags = tags
             qrInfo.description = description
