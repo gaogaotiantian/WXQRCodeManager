@@ -114,6 +114,9 @@ def qrcode():
             if qrcode == None:
                 return make_response(jsonify({"err_msg":"Cannot read QRCode from the image."}), 400)
             url = qrcode.url
+            # Check whether url is a valid wechat group url
+            if not url.startswith("https://weixin.qq.com/g/"):
+                return make_response(jsonify({"err_msg":"The QRCode is not a valid WeChat group code."}), 400)
             # DEBUG: Need to add QRCode checker
             # Check same QRcode
             urlDb = QRCodeDb.query.filter_by(url=url).first()
