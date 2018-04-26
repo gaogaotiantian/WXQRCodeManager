@@ -18,6 +18,8 @@ getGroupDom = function(data) {
     if (data.description) {
         $template.find('.card-text').text(data.description);
         $template.find('.qrcode-img').attr('qrcode-description', data.description);
+    } else {
+        $template.find('.qrcode-img').attr('qrcode-description', "");
     }
     return $template
 }
