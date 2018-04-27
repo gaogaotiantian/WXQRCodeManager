@@ -193,6 +193,7 @@ def groups():
                 pass
 
         q = QRCodeDb.query
+        q = q.filter_by(valid = True)
         for keyword in keywords:
             q = q.filter(QRCodeDb.search_text.ilike("%"+keyword+"%"))
 
