@@ -55,7 +55,11 @@ listPage = function(data = {}) {
 appendPage = function(finish) {
     var data = JSON.parse($('#group-list-div').data('args'));
     data['offset'] = $('#group-list-div').data('offset');
-    data['limit'] = 10;
+    if ($(document).width() >= 576) {
+        data['limit'] = 12;
+    } else {
+        data['limit'] = 5;
+    }
     $.ajax({
         url: '/api/v1/groups',
         type: 'get',
