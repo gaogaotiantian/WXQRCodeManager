@@ -183,6 +183,10 @@ def groups():
         keywords = []
         if keywords_str != None:
             keywords = keywords_str.strip().split()
+        tags_str = request.args.get("tags")
+        tags = []
+        if tags_str != None:
+            tags = tags_str.strip().split()
 
         limit = 20
         limit_str = request.args.get("limit")
@@ -196,6 +200,9 @@ def groups():
         q = q.filter_by(valid = True)
         for keyword in keywords:
             q = q.filter(QRCodeDb.search_text.ilike("%"+keyword+"%"))
+
+        for tag in tags:
+            q = q.filter(QRCodeDb.tags.ilike("% "+tag+" %"))
 
         q = q.limit(limit)
         ret_list = [qrcode.to_dict() for qrcode in q.all()]
@@ -223,7 +230,7 @@ def groups():
             if name == "":
                 return make_response(jsonify({"err_msg":"You need to input group name!"}), 400)
             qrInfo.name = name
-            qrInfo.tags = tags
+            qrInfo.tags = ' ' + ' '.join(tags.strip().split()) + ' '
             qrInfo.description = description
             qrInfo.valid = True
             qrInfo.search_text = " ".join([name, tags, description])

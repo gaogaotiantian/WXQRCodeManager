@@ -52,7 +52,7 @@ refreshTags = function() {
             $('#tags-list-div').append($('<a>').attr('href', '#').addClass("badge badge-primary mr-1 badge-remove").text(tag+" ").append($('<i>').addClass("fas fa-times")));
         }
     }
-    listPage(data = {"keywords":$('#tags-list-div').data("tags")});
+    listPage(data = {"tags":$('#tags-list-div').data("tags")});
 }
 
 // Upload functions
