@@ -49,6 +49,8 @@ class QRCodeDb(db.Model):
     session_time = db.Column(db.Float)
     search_text  = db.Column(db.Text)
     read         = db.Column(db.Integer, default = 0)
+    valid        = db.Column(db.Boolean, default = False)
+    thumbnail    = db.Column(db.String(1024))
 
     def to_dict(self):
         ret = {}
@@ -57,8 +59,7 @@ class QRCodeDb(db.Model):
         ret['description'] = self.description
         ret['tags'] = self.tags.strip().split()
         ret['session_id'] = self.session_id
-        reader = QR.QRCodeReader()
-        ret['image'] = reader.generate_image_base64(QR.QRCode(url = self.url, name = self.name, date=""), thumbnail = True)
+        ret['image'] = self.thumbnail
         return ret
 
 db.create_all()
@@ -142,6 +143,7 @@ def qrcode():
                 qrInfo.search_text = qrcode.name
                 qrInfo.session_id = session_id
                 qrInfo.session_time = session_time
+                qrInfo.thumbnail = reader.generate_image_base64(qrcode, thumbnail = True)
                 db.session.add(qrInfo)
                 db.session.commit()
                 return make_response(jsonify(qrInfo.to_dict()), 201)
@@ -222,6 +224,7 @@ def groups():
             qrInfo.name = name
             qrInfo.tags = tags
             qrInfo.description = description
+            qrInfo.valid = True
             qrInfo.search_text = " ".join([name, tags, description])
             db.session.commit()
         else:
