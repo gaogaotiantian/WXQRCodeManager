@@ -171,9 +171,16 @@ $(function() {
         $('#download_img').attr('src','/api/v1/qrcode?id='+$('#download_text').val());
     });
 
-    $('#search_button').click(function(){
-        listPage(data = {"keywords":$('#search_text').val()});
+    // Search
+    $('#search-button').click(function(){
+        listPage(data = {"keywords":$('#search-text').val()});
     });
+    $('#search-text').keypress(function(event) {
+        if (event.which == 13) {
+            console.log('click')
+            $('#search-button').trigger("click");
+        }
+    })
 
     $('#upload-confirm-button').click(function(){
         if (!$(this).hasClass('disabled')) {
