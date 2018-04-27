@@ -9,3 +9,7 @@
 #header-div {
     background-color: #F0F0F0;
 }
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: searchfield-cancel-button;
+}
