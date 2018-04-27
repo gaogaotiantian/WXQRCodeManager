@@ -62,6 +62,23 @@ class QRCodeReader:
         '''
         return result
 
+    def generate_image_base64(self, qrcode_data, thumbnail = False):
+        if thumbnail == True:
+            url = qrcode_data.url
+            name = qrcode_data.name
+            date = qrcode_data.date
+            qr_code = pyqrcode.create(url)
+            base64_str = qr_code.png_as_base64_str(scale=2)
+
+            return base64_str
+
+        else:
+            img = self.generate_image(qrcode_data)
+            buf = BytesIO()
+            img.save(buf, format='PNG')
+        
+            return base64.b64encode(buf.getvalue()).decode('utf-8')
+
     def get_position(self,image,coordinate):
         test = decode(image)
         if len(test) == 0:

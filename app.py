@@ -57,6 +57,8 @@ class QRCodeDb(db.Model):
         ret['description'] = self.description
         ret['tags'] = self.tags.strip().split()
         ret['session_id'] = self.session_id
+        reader = QR.QRCodeReader()
+        ret['image'] = reader.generate_image_base64(QR.QRCode(url = self.url, name = self.name, date=""), thumbnail = True)
         return ret
 
 db.create_all()
@@ -164,7 +166,7 @@ GET:
 
     Get a list of groups that match the key words.
 '''
-@app.route('/api/v1/groups', methods=['GET', 'POST'])
+@app.route('/api/v1/groups', methods=['GET', 'POST', 'DELETE'])
 def groups():
     '''
         keywords = request.args.get ("keywords")
@@ -215,6 +217,8 @@ def groups():
                 return make_response(jsonify({"err_msg":"Invalid post"}), 400)
             if time.time() - qrInfo.session_time >= SESSION_TIMEOUT:
                 return make_response(jsonify({"err_msg":"Timeout"}), 400)
+            if name == "":
+                return make_response(jsonify({"err_msg":"You need to input group name!"}), 400)
             qrInfo.name = name
             qrInfo.tags = tags
             qrInfo.description = description
@@ -222,8 +226,28 @@ def groups():
             db.session.commit()
         else:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+    
+    elif request.method == 'DELETE':
+        data = request.json
+        if data == None:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+        try:
+            id = data['id']
+            session_id = data['session_id']
+        except:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+        qrInfo = QRCodeDb.query.get(id)
+        if qrInfo != None:
+            if session_id != qrInfo.session_id:
+                return make_response(jsonify({"err_msg":"Invalid post"}), 400)
+            if time.time() - qrInfo.session_time >= SESSION_TIMEOUT:
+                return make_response(jsonify({"err_msg":"Timeout"}), 400)
+            db.session.delete(qrInfo)
+            db.session.commit()
+        else:
+            return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
 
-        return make_response(jsonify({}), 201)
+    return make_response(jsonify({}), 201)
 
 
 

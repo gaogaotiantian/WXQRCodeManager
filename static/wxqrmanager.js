@@ -4,7 +4,7 @@ getGroupDom = function(data) {
     $template.removeClass('d-none');
     $template.removeAttr('id');
     if (data.id) {
-        $template.find('.qrcode-img').attr('qrcode-id', data.id.toString()).attr('src', '/api/v1/qrcode?id='+data.id);
+        $template.find('.qrcode-img').attr('qrcode-id', data.id.toString());
     }
     if (data.name) {
         $template.find('.card-title').text(data.name);
@@ -20,6 +20,10 @@ getGroupDom = function(data) {
         $template.find('.qrcode-img').attr('qrcode-description', data.description);
     } else {
         $template.find('.qrcode-img').attr('qrcode-description', "");
+    }
+
+    if (data.image) {
+        $template.find('.qrcode-img').attr('src', 'data:image/png;base64, '+data.image);
     }
     return $template
 }
@@ -52,6 +56,16 @@ refreshTags = function() {
 }
 
 // Upload functions
+resetUploadDom = function() {
+    $('#upload-file-input').val('');
+    $('#upload-file-label').text('选择文件');
+    $('#upload-data-div').hide();
+    $('#upload-img-preview').hide();
+    $('#upload-success-div').hide();
+    $('#upload-error-div').hide();
+    $('#upload-confirm-button').addClass("disabled");
+    $('#upload-delete-button').addClass("disabled");
+}
 uploadQrcode = function() {
     $.ajax({
         url: '/api/v1/groups',
@@ -65,18 +79,48 @@ uploadQrcode = function() {
             "session_id":$('#upload-modal').data('session_id')
         }),
         success: function(d, st, xhr) {
-            $('#upload-file-input').val('');
-            $('#upload-file-label').text('选择文件');
-            $('#upload-data-div').hide();
-            $('#upload-img-preview').hide();
-            $('#upload-success-div').hide();
-            $('#upload-error-div').hide();
+            resetUploadDom()
             $('#upload-modal').modal('hide');
+        },
+        error: function(d, st, xhr) {
+            uploadShowError(d.responseJSON.err_msg);
         }
     });
 };
 
+uploadShowError = function(text) {
+    $('#upload-success-div').hide();
+    $('#upload-error-div').show();
+    $('#upload-error-div').text(text);
+}
+
+uploadShowSuccess = function(text) {
+    $('#upload-success-div').show();
+    $('#upload-error-div').hide();
+    $('#upload-success-div').text(text);
+}
+
+deleteQrcode = function() {
+    $.ajax({
+        url: '/api/v1/groups',
+        type: 'delete',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            "id":$('#upload-data-div').data("id"),
+            "session_id":$('#upload-modal').data('session_id')
+        }),
+        success: function(d, st, xhr) {
+            resetUploadDom()
+            $('#upload-modal').modal('hide');
+        },
+        error: function(d, st, xhr) {
+            uploadShowError(d.responseJSON.err_msg);
+        }
+    })
+}
+
 $(function() {
+    // Upload Image to server
     $('#upload-file-input').change(function() {
         var fileName = $('#upload-file-input')[0].files[0].name;
         var fileSize = $('#upload-file-input')[0].files[0].size;
@@ -95,31 +139,28 @@ $(function() {
                         $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
                         $('#upload-img-preview').show();
                         $('#upload-data-div').show();
-                        $('#upload-error-div').hide();
-                        $('#upload-success-div').show();
-                        $('#upload-success-div').text("上传成功！");
                         $('#upload-data-name-input').val(d.name);
                         $('#upload-data-description-input').val(d.description);
                         $('#upload-data-tags-input').val(d.tags.join(" "));
                         $('#upload-confirm-button').removeClass("disabled");
+                        $('#upload-delete-button').removeClass("disabled");
                         $('#upload-modal').data('session_id', d['session_id']);
+                        uploadShowSuccess("上传成功！");
                     },
                     error: function(d, st, xhr) {
                         $('#upload-img-preview').hide();
                         $('#upload-data-div').hide();
-                        $('#upload-success-div').hide();
-                        $('#upload-error-div').show();
-                        $('#upload-error-div').text(d.responseJSON.err_msg);
                         $('#upload-confirm-button').addClass("disabled");
+                        $('#upload-delete-button').addClass("disabled");
+                        uploadShowError(d.responseJSON.err_msg);
                     }
                 });
             } else {
                 $('#upload-img-preview').hide();
                 $('#upload-data-div').hide();
-                $('#upload-success-div').hide();
-                $('#upload-error-div').show();
-                $('#upload-error-div').text("File size is too large! Only support images under 2MB");
                 $('#upload-confirm-button').addClass("disabled");
+                $('#upload-delete-button').addClass("disabled");
+                uploadShowError("File size is too large! Only support images under 2MB");
             }
         } else {
             $('#upload-file-label').text("选择文件");
@@ -137,6 +178,12 @@ $(function() {
     $('#upload-confirm-button').click(function(){
         if (!$(this).hasClass('disabled')) {
             uploadQrcode();
+        }
+    });
+
+    $('#upload-delete-button').click(function(){
+        if (!$(this).hasClass('disabled')) {
+            deleteQrcode();
         }
     });
 
