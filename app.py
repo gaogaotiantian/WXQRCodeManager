@@ -188,11 +188,19 @@ def groups():
         if tags_str != None:
             tags = tags_str.strip().split()
 
-        limit = 20
+        limit = 10
         limit_str = request.args.get("limit")
         if limit_str != None:
             try:
-                limit = limit_str
+                limit = int(limit_str)
+            except:
+                pass
+
+        offset = 0
+        offset_str = request.args.get("offset")
+        if offset_str != None:
+            try:
+                offset = int(offset_str)
             except:
                 pass
 
@@ -205,6 +213,7 @@ def groups():
             q = q.filter(QRCodeDb.tags.ilike("% "+tag+" %"))
 
         q = q.limit(limit)
+        q = q.offset(offset)
         ret_list = [qrcode.to_dict() for qrcode in q.all()]
 
         return make_response(jsonify ({'results':ret_list}), 200)

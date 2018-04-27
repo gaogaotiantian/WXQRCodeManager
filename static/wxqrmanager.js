@@ -38,7 +38,36 @@ listPage = function(data = {}) {
             for (idx in d.results) {
                 $('#group-list-div').append(getGroupDom(d.results[idx]));
             }
-            
+            $('#group-list-div').data('args', JSON.stringify(data));
+            $('#group-list-div').data('offset', d.results.length);
+            if ($(document).height() <= $(window).height()) {
+                var finish = function(resultNum) {
+                    if (resultNum > 0 && $(document).height() <= $(window).height()) {
+                        appendPage(finish);
+                    }
+                };
+                appendPage(finish)
+            }
+        }
+    })
+}
+
+appendPage = function(finish) {
+    var data = JSON.parse($('#group-list-div').data('args'));
+    data['offset'] = $('#group-list-div').data('offset');
+    data['limit'] = 10;
+    $.ajax({
+        url: '/api/v1/groups',
+        type: 'get',
+        data: data,
+        success: function(d, st, xhr) {
+            for (idx in d.results) {
+                $('#group-list-div').append(getGroupDom(d.results[idx]));
+            }
+            $('#group-list-div').data('offset', data['offset'] + d.results.length);
+            if (finish) {
+                finish(d.results.length);
+            }
         }
     })
 }
@@ -226,5 +255,11 @@ $(function() {
         $('#display-img-download').attr('href', "/api/v1/qrcode?id=" + $(this).attr('qrcode-id'));
         $('#display-modal').modal("show");
     });
+
+    $(window).scroll(function() {
+        if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+            appendPage()
+        }
+    })
     listPage();
 })
