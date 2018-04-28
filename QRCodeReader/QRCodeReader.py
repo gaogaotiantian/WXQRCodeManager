@@ -206,8 +206,14 @@ class QRCodeReader:
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         return text
 
-    def get_date(self, image):
+    def get_date(self, image_o):
         #image = Image.open(image)
+        image=image_o.convert('L')
+        bw = np.asarray(image).copy()
+        bw[bw < 180] = 0    # Black
+        bw[bw >= 180] = 255 # White
+        image=Image.fromarray(bw)
+
         mg_w, img_h = image.size
         coordinate=np.zeros(8)
         arr=self.get_position(image,coordinate)
