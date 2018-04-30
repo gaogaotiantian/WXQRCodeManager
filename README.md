@@ -8,7 +8,7 @@ sudo apt-get install tesseract-ocr tesseract-ocr-eng tesseract-ocr-chi-sim
 
 On Mac OS, use
 ```
-brew install tesseract --all-languages
+brew install tesseract --with-all-languages
 ```
 
 # To run test for the module, use
