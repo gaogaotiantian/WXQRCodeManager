@@ -19,6 +19,8 @@
 !/test/
 /test/*
 !/test/*.py
+!/test/test_qrcode.png
+!/test/myfile.jpg
 
 !/static/
 /static/*

@@ -52,6 +52,16 @@ class qrcode_post(unittest.TestCase):
         if r.status_code != 200:
             self.skipTest("Server Error, Could not get root page")
 
+    def test_post_random_qr(self):
+        files = {'img': open('test_qrcode.png','rb')}
+        r = requests.post(url + '/api/v1/qrcode', files=files)
+        assert r.status_code == 400
+
+    def test_post_valid(self):
+        files = {'img': open('myfile.jpg','rb')}
+        r = requests.post(url + '/api/v1/qrcode', files=files)
+        assert r.status_code/100 == 2
+
 
 class groups_get(unittest.TestCase):
     def setUp(self):
@@ -70,10 +80,30 @@ class groups_get(unittest.TestCase):
         r = requests.get(url + '/api/v1/groups?keywords=')
         assert r.status_code == 200
 
-    def test_search_ucsb_and_qrget(self):
+    def test_search_ucsb(self):
         r = requests.get(url + '/api/v1/groups?keywords=ucsb')
         assert r.status_code == 200
-        # unfinished, expect: parse returned json and qrget for all ids in the json
+        for i in r.json()['results']:
+            tags = [x.lower() for x in i['tags']]
+            assert 'ucsb' in tags
+        print()
+        for i in r.json()['results']:
+            self.qrget_search_result(str(i['id']))
+
+    def test_search_cs(self):
+        r = requests.get(url + '/api/v1/groups?keywords=cs')
+        assert r.status_code == 200
+        for i in r.json()['results']:
+            tags = [x.lower() for x in i['tags']]
+            assert 'cs' in tags
+        print()
+        for i in r.json()['results']:
+            self.qrget_search_result(str(i['id']))
+
+    def qrget_search_result(self,id):
+        r = requests.get(url + '/api/v1/qrcode?id=' + id)
+        assert r.status_code == 200
+        print("id" + id + " passed")
 
 
 class groups_post(unittest.TestCase):
@@ -91,6 +121,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     url = args.input_url[0]
     test_code = args.test_code
+    if not url.startswith("http://"):
+        url = "http://" + url
     try:
         r = requests.get(url + '/')
     except:
