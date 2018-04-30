@@ -160,14 +160,28 @@ $(function() {
         if (fileName) {
             if (fileSize < 1024 * 1024 * 2) {
                 $('#upload-file-label').text(fileName);
-                var fdata = new FormData($("#upload-form")[0])
+                var fdata = new FormData($("#upload-form")[0]);
+                $('#upload-progress-bar').css("width", '0%');
+                $('#upload-progress-div').show();
                 $.ajax({
+                    xhr:function() {
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = evt.loaded/evt.total;
+                                $('#upload-progress-bar').css("width", percentComplete*100+'%');
+                            }
+                        });
+                        return xhr;
+                    },
                     url: '/api/v1/qrcode',
                     type: 'post',
                     data: fdata,
                     processData: false,
                     contentType: false,
                     success: function(d, st, xhr) {
+                        $('#upload-progress-div').hide();
+                        $('#upload-progress-bar').css("width", '0%');
                         $('#upload-data-div').data("id", d.id)
                         $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
                         $('#upload-img-preview').show();
@@ -181,6 +195,7 @@ $(function() {
                         uploadShowSuccess("上传成功！");
                     },
                     error: function(d, st, xhr) {
+                        $('#upload-progress-div').hide();
                         $('#upload-img-preview').hide();
                         $('#upload-data-div').hide();
                         $('#upload-confirm-button').addClass("disabled");

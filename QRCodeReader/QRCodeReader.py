@@ -3,7 +3,6 @@ import pyqrcode
 from io import BytesIO
 import base64
 from .pyzbar.pyzbar import decode
-
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -36,12 +35,13 @@ class QRCodeReader:
         name = qrcode_data.name
         date = qrcode_data.date
         qr_code = pyqrcode.create(url)
-        # scale it up so it's clear
         base64_str = qr_code.png_as_base64_str(scale=10)
-        im = Image.open(BytesIO(base64.b64decode(base64_str)))    
+        im = Image.open(BytesIO(base64.b64decode(base64_str)))
+        im=im.resize((760,760))
+        #760, 760 deafult for the qrcode in wechat
         img_w, img_h = im.size
-        result=Image.new(mode="RGB",size=(500,500),color=(255,255,255))
-        
+        result=Image.new(mode="RGB",size=(1000,1300),color=(255,255,255))
+        #1000x1300 is the default size for wechar qrcode 
         bg_w, bg_h = result.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         result.paste(im,offset)
@@ -79,7 +79,7 @@ class QRCodeReader:
         
             return base64.b64encode(buf.getvalue()).decode('utf-8')
 
-    def get_position(self,image,coordinate):
+    def helper_position(self,image,coordinate):
         test = decode(image)
         if len(test) == 0:
             return False
@@ -99,54 +99,64 @@ class QRCodeReader:
                 count=count+1
         return True
 
-    def add_groupname(self, image, word):
-        coordinate=np.zeros(8)
-        temp=self.get_position(image,coordinate)
+    def get_position(self,image,coordinate):
+        temp=self.helper_position(image,coordinate)
         if temp == False:
             return None
         test = decode(image)
         position=test[0].rect
         position=str(position)
+
         left=int(position[int(coordinate[0]):int(coordinate[1])+1])
         top=int(position[int(coordinate[2]):int(coordinate[3])+1])
         width=int(position[int(coordinate[4]):int(coordinate[5])+1])
         height=int(position[int(coordinate[6]):int(coordinate[7])+1])
-
+        arr=[left,top,width,height]
+        return arr
+        
+    def add_groupname(self, image, word):
+        img_w, img_h = image.size
+        coordinate=np.zeros(8)
+        arr=self.get_position(image,coordinate)
+        if arr == None:
+            return None
+        left=arr[0]
+        top=arr[1]
+        width=arr[2]
+        height=arr[3]
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 35)
+        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 50)
 
-        
-        x=left+width/10
-        y=top-width/5
-
+        w,h=draw.textsize(word,font=font)
+        #put word in center
+        x=left+width/2-w/2
+        y=(top-h)/2
         draw.text((x,y),word,(0,0,0),font=font)
         #image.save("test.png")
         return image
 
     def add_date(self, image, date):
+        img_w, img_h = image.size
         coordinate=np.zeros(8)
-        temp=self.get_position(image,coordinate)
-        if temp == False:
+        arr=self.get_position(image,coordinate)
+        if arr == None:
             return None
-        test = decode(image)
-        position=test[0].rect
-        position=str(position)
-        left=int(position[int(coordinate[0]):int(coordinate[1])+1])
-        top=int(position[int(coordinate[2]):int(coordinate[3])+1])
-        width=int(position[int(coordinate[4]):int(coordinate[5])+1])
-        height=int(position[int(coordinate[6]):int(coordinate[7])+1])
+        left=arr[0]
+        top=arr[1]
+        width=arr[2]
+        height=arr[3]
 
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
         font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 35)
 
-        x=left+width/10
-        y=top+9*height/8
-
+        w,h=draw.textsize(date,font=font)
+        #center
+        x=left+width/2-w/2
+        y=img_h-(img_h-top-height)/2
         draw.text((x,y),date,(0,0,0),font=font)
         #image.save("test.png")
-
         return image
 
 
@@ -175,48 +185,50 @@ class QRCodeReader:
         mask = cv2.inRange(gray, lower_bound, upper_bound)
         return cv2.bitwise_and(gray, gray, mask = mask)
     
-
         return d[0].rect
         '''
     def get_group_name(self, image):
         #image = Image.open(image)
+        img_w, img_h = image.size
         coordinate=np.zeros(8)
-        temp=self.get_position(image,coordinate)
-        if temp == False:
+        arr=self.get_position(image,coordinate)
+        if arr == None:
             return None
-        test = decode(image)
-        position=test[0].rect
-        position=str(position)
-        left=int(position[int(coordinate[0]):int(coordinate[1])+1])
-        top=int(position[int(coordinate[2]):int(coordinate[3])+1])
-        width=int(position[int(coordinate[4]):int(coordinate[5])+1])
-        height=int(position[int(coordinate[6]):int(coordinate[7])+1])
+        left=arr[0]
+        top=arr[1]
+        width=arr[2]
+        height=arr[3]
 
         im = image
-        rec=(left+width/10,top-width/3,left+width,top)
+        rec=(left+0.05*width,0,left+width,top)
         c_im=im.crop(rec)
+        #c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         return text
 
-    def get_date(self, image):
+    def get_date(self, image_o):
         #image = Image.open(image)
-        coordinate=np.zeros(8)
-        temp=self.get_position(image,coordinate)
-        if temp == False:
-            return None
-        test = decode(image)
-        position=test[0].rect
-        position=str(position)
+        image=image_o.convert('L')
+        bw = np.asarray(image).copy()
+        bw[bw < 180] = 0    # Black
+        bw[bw >= 180] = 255 # White
+        image=Image.fromarray(bw)
 
-        left=int(position[int(coordinate[0]):int(coordinate[1])+1])
-        top=int(position[int(coordinate[2]):int(coordinate[3])+1])
-        width=int(position[int(coordinate[4]):int(coordinate[5])+1])
-        height=int(position[int(coordinate[6]):int(coordinate[7])+1])
+        mg_w, img_h = image.size
+        coordinate=np.zeros(8)
+        arr=self.get_position(image,coordinate)
+        if arr == None:
+            return None
+        left=arr[0]
+        top=arr[1]
+        width=arr[2]
+        height=arr[3]
+
 
         im = image
-        rec=(left,top+11*height/10,left+width,top+3*height/2)
+        rec=(left,top+11*height/10,left+width,img_h)
         c_im=im.crop(rec)
-
+        #c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         return text
 
@@ -225,10 +237,9 @@ Simple test code can he bere
 '''
 if __name__ == '__main__':
     reader = QRCodeReader()
-    im = reader.generate_image(QRCode(url = "abc", name = "name"))
+    im = reader.generate_image(QRCode(url = "abc"))
     image=reader.add_groupname(im,"ABC")
     image=reader.add_date(image,"1/2/2018")
-
 
     assert(reader.get_qrcode_data(im).url == "abc")
     print("test passed")

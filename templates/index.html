@@ -75,10 +75,13 @@
               <div class="input-group">
                 <div class="custom-file">
                   <input type="file" name="img" class="custom-file-input" id="upload-file-input">
-                  <label id="upload-file-label" class="custom-file-label" for="upload-file-input">选择文件</label>
+                  <label id="upload-file-label" class="custom-file-label" for="upload-file-input" style="overflow:hidden">选择文件</label>
                 </div>
               </div>
             </form>
+            <div id="upload-progress-div" class="progress mb-1">
+              <div id="upload-progress-bar" class="progress-bar" role="progressbar" style="width:0"></div>
+            </div>
             <div id="upload-success-div" class="alert alert-success collapse" role="alert">
             </div>
             <div id="upload-error-div" class="alert alert-danger collapse" role="alert">
