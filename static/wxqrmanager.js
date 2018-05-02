@@ -245,6 +245,8 @@ $(function() {
                 var fdata = new FormData($("#upload-form")[0]);
                 $('#upload-progress-bar').css("width", '0%');
                 $('#upload-progress-div').show();
+                var reader = new FileReader();
+                reader.readAsDataURL($('#upload-file-input')[0].files[0]);
                 $.ajax({
                     xhr:function() {
                         var xhr = new window.XMLHttpRequest();
@@ -264,8 +266,8 @@ $(function() {
                     success: function(d, st, xhr) {
                         $('#upload-progress-div').hide();
                         $('#upload-progress-bar').css("width", '0%');
-                        $('#upload-data-div').data("id", d.id)
-                        $('#upload-img-preview').attr('src', 'data:image/png;base64, '+d.image);
+                        $('#upload-data-div').data("id", d.id);
+                        $('#upload-img-preview').attr('src', reader.result);
                         $('#upload-img-preview').show();
                         $('#upload-data-div').show();
                         $('#upload-data-name-input').val(d.name);
