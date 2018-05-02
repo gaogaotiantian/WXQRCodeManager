@@ -53,12 +53,12 @@ class qrcode_post(unittest.TestCase):
             self.skipTest("Server Error, Could not get root page")
 
     def test_post_random_qr(self):
-        files = {'img': open('test_qrcode.png','rb')}
+        files = {'img': open('images/test_qrcode.png','rb')}
         r = requests.post(url + '/api/v1/qrcode', files=files)
         assert r.status_code == 400
 
     def test_post_valid(self):
-        files = {'img': open('myfile.jpg','rb')}
+        files = {'img': open('images/myfile.jpg','rb')}
         r = requests.post(url + '/api/v1/qrcode', files=files)
         assert r.status_code/100 == 2
 
