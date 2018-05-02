@@ -265,7 +265,7 @@ $(function() {
                         $('#upload-progress-div').hide();
                         $('#upload-progress-bar').css("width", '0%');
                         $('#upload-data-div').data("id", d.id)
-                        $('#upload-img-preview').attr('src', '/api/v1/qrcode?id='+d.id);
+                        $('#upload-img-preview').attr('src', 'data:image/png;base64, '+d.image);
                         $('#upload-img-preview').show();
                         $('#upload-data-div').show();
                         $('#upload-data-name-input').val(d.name);
