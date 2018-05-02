@@ -68,7 +68,7 @@ class QRCodeReader:
             name = qrcode_data.name
             date = qrcode_data.date
             qr_code = pyqrcode.create(url)
-            base64_str = qr_code.png_as_base64_str(scale=2)
+            base64_str = qr_code.png_as_base64_str(scale=3)
 
             return base64_str
 

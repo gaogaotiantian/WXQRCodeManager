@@ -6,6 +6,7 @@ import io
 import json
 import time
 import base64
+import hashlib
 
 
 # other published packages
@@ -51,6 +52,7 @@ class QRCodeDb(db.Model):
     read         = db.Column(db.Integer, default = 0)
     valid        = db.Column(db.Boolean, default = False)
     thumbnail    = db.Column(db.String(1024))
+    fingerprint  = db.Column(db.String(32))
 
     def to_dict(self):
         ret = {}
@@ -60,9 +62,16 @@ class QRCodeDb(db.Model):
         ret['tags'] = self.tags.strip().split()
         ret['session_id'] = self.session_id
         ret['image'] = self.thumbnail
+        ret['read'] = self.read
         return ret
 
 db.create_all()
+
+def clearDatabase():
+    QRCodeDb.query.filter(QRCodeDb.valid == False).filter(QRCodeDb.add_time < time.time() - SESSION_TIMEOUT).delete()
+    db.session.commit()
+    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).delete()
+    db.session.commit()
 
 
 '''
@@ -98,6 +107,8 @@ def qrcode():
         if qrInfo != None:
             reader = QR.QRCodeReader()
             image = reader.generate_image(QR.QRCode(url = qrInfo.url, name = qrInfo.name, date=""))
+            qrInfo.read = qrInfo.read + 1
+            db.session.commit()
             # Convert the image into Bytes
             file = io.BytesIO()
             image.save(file, 'jpeg')
@@ -135,8 +146,8 @@ def qrcode():
                 qrInfo = QRCodeDb()
                 qrInfo.id = maxId + 1 if maxId != None else 1
                 qrInfo.url = url
-                qrInfo.expire_time = 0.0
                 qrInfo.add_time = time.time()
+                qrInfo.expire_time = time.time() + 7*24*3600
                 qrInfo.name = qrcode.name
                 qrInfo.tags = ""
                 qrInfo.description = ""
@@ -144,14 +155,18 @@ def qrcode():
                 qrInfo.session_id = session_id
                 qrInfo.session_time = session_time
                 qrInfo.thumbnail = reader.generate_image_base64(qrcode, thumbnail = True)
+                qrInfo.fingerprint = hashlib.md5(image.tobytes()).hexdigest()
                 db.session.add(qrInfo)
                 db.session.commit()
                 return make_response(jsonify(qrInfo.to_dict()), 201)
             else:
-                urlDb.session_id = session_id
-                urlDb.session_time = session_time
-                db.session.commit()
-                return make_response(jsonify(urlDb.to_dict()), 200)
+                if hashlib.md5(image.tobytes()).hexdigest() == urlDb.fingerprint:
+                    urlDb.session_id = session_id
+                    urlDb.session_time = session_time
+                    db.session.commit()
+                    return make_response(jsonify(urlDb.to_dict()), 200)
+                else:
+                    return make_response(jsonify({"err_msg":"This QRCode has been uploaded and you do not have the access to modify it."}), 400)
 
     return make_response("Invalid request method, only support GET or POST", 405)
 
@@ -179,6 +194,7 @@ def groups():
 
     '''
     if request.method == 'GET':
+        clearDatabase()
         keywords_str = request.args.get("keywords")
         keywords = []
         if keywords_str != None:
