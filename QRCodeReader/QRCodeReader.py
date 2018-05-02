@@ -46,9 +46,9 @@ class QRCodeReader:
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         result.paste(im,offset)
         if(name!=''):
-            self.add_groupname(im, name)
-        if(url!=''):
-            self.add_date(im,date)
+            result = self.add_groupname(result, name)
+        if(date!=''):
+            result = self.add_date(result, date)
         '''
         im=im.convert('RGBA')
         data=im.getdata()
@@ -133,7 +133,6 @@ class QRCodeReader:
         x=left+width/2-w/2
         y=(top-h)/2
         draw.text((x,y),word,(0,0,0),font=font)
-        #image.save("test.png")
         return image
 
     def add_date(self, image, date):
