@@ -70,7 +70,7 @@ db.create_all()
 def clearDatabase():
     QRCodeDb.query.filter(QRCodeDb.valid == False).filter(QRCodeDb.add_time < time.time() - SESSION_TIMEOUT).delete()
     db.session.commit()
-    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).delete()
+    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).update(dict(valid=False))
     db.session.commit()
 
 
