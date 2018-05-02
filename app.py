@@ -228,6 +228,7 @@ def groups():
         for tag in tags:
             q = q.filter(QRCodeDb.tags.ilike("% "+tag+" %"))
 
+        q = q.order_by(QRCodeDb.add_time.desc())
         q = q.limit(limit)
         q = q.offset(offset)
         ret_list = [qrcode.to_dict() for qrcode in q.all()]

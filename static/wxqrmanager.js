@@ -33,6 +33,10 @@ getGroupDom = function(data) {
     if (data.image) {
         $template.find('.qrcode-img').attr('src', 'data:image/png;base64, '+data.image);
     }
+
+    if (data.read) {
+        $template.find('.read-time-span').text(data.read);
+    }
     return $template
 }
 
