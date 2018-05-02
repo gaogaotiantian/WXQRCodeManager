@@ -21,6 +21,7 @@
 !/test/*.py
 !/test/images/*.jpg
 !/test/images/*.png
+!/test/images/
 
 !/static/
 /static/*
