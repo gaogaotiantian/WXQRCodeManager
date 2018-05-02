@@ -311,7 +311,7 @@ $(function() {
     });
 
     // Search
-    $('#search-button').click(function() {
+    $('body').on("click", "#search-button", function() {
         qrcodeData = {"keywords":$('#search-text').val()};
         listPage(qrcodeData);
     });
