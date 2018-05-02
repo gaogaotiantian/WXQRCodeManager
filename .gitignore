@@ -11,6 +11,7 @@
 /QRCodeReader/pyzbar/tests/
 /QRCodeReader/pyzbar/scripts/
 /QRCodeReader/pyzbar/.*
+!/QRCodeReader/test_images/
 
 !/templates/
 /templates/*
