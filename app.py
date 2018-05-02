@@ -148,7 +148,7 @@ def qrcode():
                 qrInfo.url = url
                 qrInfo.add_time = time.time()
                 qrInfo.expire_time = time.time() + 7*24*3600
-                qrInfo.name = qrcode.name
+                qrInfo.name = ""
                 qrInfo.tags = ""
                 qrInfo.description = ""
                 qrInfo.search_text = qrcode.name
