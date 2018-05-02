@@ -1,15 +1,57 @@
-.card-text {
-    color: #606060;
+body {
+  background: white;
+  color: #333;
+  font: 300 1em/1.8 PingFang SC;
 }
 
-.card {
-    background-color: #f0f0f0;
+header {
+  background-image: url("https://www.toptal.com/designers/subtlepatterns/patterns/gplaypattern.png");
+  background-repeat: repeat;
 }
 
-#header-div {
-    background-color: #F0F0F0;
+#search-button {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+input[type="search"] {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #606060;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0 5px;
+  -webkit-box-shadow: none;
+}
+input[type="search"]:focus{
+  border-bottom: 1px solid #007bff;
+  box-shadow: none;
+  -webkit-box-shadow: none;
 }
 
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: searchfield-cancel-button;
+}
+
+/* Media related rules */
+@media screen and (min-width: 576px) {
+  header {
+    height: 140px;
+  }
+
+  #operation-bar {
+    align-items: flex-end;
+    margin-bottom: 1em !important;
+  }
+}
+
+/* Screen < 576px (mobile) */
+@media screen and (max-width: 576px) {
+  #operation-bar {
+    align-items: center;
+  }
+
+  #search-bar {
+    margin-bottom: 1em !important;
+  }
 }

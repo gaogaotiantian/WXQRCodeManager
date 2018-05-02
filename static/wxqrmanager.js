@@ -1,6 +1,14 @@
+// Global variables
+var qrcodeView = "list";
+var qrcodeData = {};
+
 // List groups
 getGroupDom = function(data) {
-    var $template = $('#card-tmpl').clone();
+    if (qrcodeView === "list") {
+        var $template = $('#card-list-tmpl').clone();
+    } else if (qrcodeView === "block") {
+        var $template = $('#card-block-tmpl').clone();
+    }
     $template.removeClass('d-none');
     $template.removeAttr('id');
     if (data.id) {
@@ -35,18 +43,57 @@ listPage = function(data = {}) {
         data: data,
         success: function(d, st, xhr) {
             $('#group-list-div').empty();
-            for (idx in d.results) {
-                $('#group-list-div').append(getGroupDom(d.results[idx]));
+            if (qrcodeView === "list") {
+                var cardsPerRow = 3;
+            } else if (qrcodeView === "block") {
+                var cardsPerRow = 4;
             }
-            $('#group-list-div').data('args', JSON.stringify(data));
-            $('#group-list-div').data('offset', d.results.length);
-            if ($(document).height() <= $(window).height()) {
-                var finish = function(resultNum) {
-                    if (resultNum > 0 && $(document).height() <= $(window).height()) {
-                        appendPage(finish);
+
+            if (d.results.length > 0) {
+                for (idx in d.results) {
+                    if ($(window).width() >= 768) {
+                        if (idx % cardsPerRow === 0) {
+                            if (idx > 0) {
+                                var cards = $('#group-list-div').find($('.cardWrapper:last')).children().find($('.card'));
+                                var maxHeight = 0;
+                                cards.each(function() {
+                                    if ($(this).height() > maxHeight) {
+                                        maxHeight = $(this).height();
+                                    }
+                                });
+                                cards.height(maxHeight);
+
+                                var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
+                                $('#group-list-div').append(seperator)
+                            }
+                            var tempRow = $(document.createElement('div')).addClass('row cardWrapper');
+                            $('#group-list-div').append(tempRow);
+                        }
+                        var tempCol = $(document.createElement('div'));
+                        if (qrcodeView === "list") {
+                            tempCol.addClass('col-12 col-md-4');
+                        } else if (qrcodeView === "block") {
+                            tempCol.addClass('col-6 col-md-3');
+                        }
+                        tempCol.append(getGroupDom(d.results[idx]));
+                        $('#group-list-div').find($('.cardWrapper:last')).append(tempCol);
+                    } else {
+                        qrcodeView = "list";
+                        $('#group-list-div').append(getGroupDom(d.results[idx]));
                     }
-                };
-                appendPage(finish)
+                }
+                $('#group-list-div').data('args', JSON.stringify(data));
+                $('#group-list-div').data('offset', d.results.length);
+                if ($(document).height() <= $(window).height()) {
+                    var finish = function(resultNum) {
+                        if (resultNum > 0 && $(document).height() <= $(window).height()) {
+                            appendPage(finish);
+                        }
+                    };
+                    appendPage(finish)
+                }
+            } else {
+                $('#group-list-div').text("We cannot find any QR code with tag \"" + data.keywords + "\".");
             }
         }
     })
@@ -66,7 +113,36 @@ appendPage = function(finish) {
         data: data,
         success: function(d, st, xhr) {
             for (idx in d.results) {
-                $('#group-list-div').append(getGroupDom(d.results[idx]));
+                if ($(window).width() >=768 ) {
+                    if (idx % cardsPerRow === 0) {
+                        if (idx > 0) {
+                            var cards = $('#group-list-div').find($('.cardWrapper:last')).children().find($('.card'));
+                            var maxHeight = 0;
+                            cards.each(function() {
+                                if ($(this).height() > maxHeight) {
+                                    maxHeight = $(this).height();
+                                }
+                            });
+                            cards.height(maxHeight);
+
+                            var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
+                            $('#group-list-div').append(seperator)
+                        }
+                        var tempRow = $(document.createElement('div')).addClass('row cardWrapper');
+                        $('#group-list-div').append(tempRow);
+                    }
+                    var tempCol = $(document.createElement('div'));
+                    if (qrcodeView === "list") {
+                        tempCol.addClass('col-12 col-md-4');
+                    } else if (qrcodeView === "block") {
+                        tempCol.addClass('col-6 col-md-3');
+                    }
+                    tempCol.append(getGroupDom(d.results[idx]));
+                    $('#group-list-div').find($('.cardWrapper:last')).append(tempCol);
+                } else {
+                    qrcodeView = "list";
+                    $('#group-list-div').append(getGroupDom(d.results[idx]));
+                }
             }
             $('#group-list-div').data('offset', data['offset'] + d.results.length);
             if (finish) {
@@ -85,7 +161,8 @@ refreshTags = function() {
             $('#tags-list-div').append($('<a>').attr('href', '#').addClass("badge badge-primary mr-1 badge-remove").text(tag+" ").append($('<i>').addClass("fas fa-times")));
         }
     }
-    listPage(data = {"tags":$('#tags-list-div').data("tags")});
+    qrcodeData = {"tags":$('#tags-list-div').data("tags")};
+    listPage(qrcodeData);
 }
 
 // Upload functions
@@ -99,6 +176,7 @@ resetUploadDom = function() {
     $('#upload-confirm-button').addClass("disabled");
     $('#upload-delete-button').addClass("disabled");
 }
+
 uploadQrcode = function() {
     $.ajax({
         url: '/api/v1/groups',
@@ -215,31 +293,49 @@ $(function() {
         }
     });
 
-    $('#download_button').click(function(){
-        $('#download_img').attr('src','/api/v1/qrcode?id='+$('#download_text').val());
-    });
-
-    // Search
-    $('#search-button').click(function(){
-        listPage(data = {"keywords":$('#search-text').val()});
-    });
-    $('#search-text').keypress(function(event) {
-        if (event.which == 13) {
-            console.log('click')
-            $('#search-button').trigger("click");
-        }
-    })
-
-    $('#upload-confirm-button').click(function(){
+    $('#upload-confirm-button').click(function() {
         if (!$(this).hasClass('disabled')) {
             uploadQrcode();
         }
     });
 
-    $('#upload-delete-button').click(function(){
+    $('#upload-delete-button').click(function() {
         if (!$(this).hasClass('disabled')) {
             deleteQrcode();
         }
+    });
+
+    // Download
+    $('#download_button').click(function() {
+        $('#download_img').attr('src','/api/v1/qrcode?id='+$('#download_text').val());
+    });
+
+    // Search
+    $('#search-button').click(function() {
+        qrcodeData = {"keywords":$('#search-text').val()};
+        listPage(qrcodeData);
+    });
+
+    $('#search-text').keypress(function(event) {
+        if (event.which == 13) {
+            console.log('click');
+            $('#search-button').trigger("click");
+        }
+    })
+
+    // Change view
+    $('#change-view-list-button').click(function() {
+        $(this).addClass("active");
+        $('#change-view-block-button').removeClass("active");
+        qrcodeView = "list";
+        listPage(qrcodeData);
+    });
+
+    $('#change-view-block-button').click(function() {
+        $('#change-view-list-button').removeClass("active");
+        $(this).addClass("active");
+        qrcodeView = "block";
+        listPage(qrcodeData);
     });
 
     $('#tags-list-div').data("tags", "");
@@ -279,6 +375,44 @@ $(function() {
         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
             appendPage()
         }
-    })
+    });
     listPage();
+
+    if ($(window).width() < 768) {
+      $('#change-view-button-group').addClass("d-none");
+    }
+    // Things to do when user resize the window
+    $(window).resize(function() {
+        // reset the  height for cards in each row
+        $('#group-list-div').find($('.cardWrapper')).each(function() {
+            var cards = $(this).children().find($('.card'));
+
+            // remove the previous setted height
+            cards.each(function() {
+                $(this).css('height', 'auto');
+            });
+
+            var maxHeight = 0;
+            cards.each(function() {
+                if ($(this).height() > maxHeight) {
+                    maxHeight = $(this).height();
+                }
+            });
+            cards.height(maxHeight);
+        });
+
+        if ($(window).width() < 768) {
+          $('#change-view-button-group').addClass("d-none");
+          qrcodeView = "list";
+        } else {
+          $('#change-view-button-group').removeClass("d-none");
+          if ($('#change-view-list-button').hasClass("active")) {
+            qrcodeView = "list";
+          } else if ($('#change-view-block-button').hasClass("active")) {
+            qrcodeView = "block";
+          }
+        }
+
+        listPage(qrcodeData);
+    });
 })
