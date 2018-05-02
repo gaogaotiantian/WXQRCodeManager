@@ -34,7 +34,7 @@ getGroupDom = function(data) {
         $template.find('.qrcode-img').attr('src', 'data:image/png;base64, '+data.image);
     }
 
-    if (data.read) {
+    if (data.read >= 0) {
         $template.find('.read-time-span').text(data.read);
     }
     return $template
