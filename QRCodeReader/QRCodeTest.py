@@ -12,7 +12,7 @@ def get_image_path(file_name):
     return os.path.join(current_path,"test_images",file_name)
 
 
-test_name = get_image_path("Colorfight! UCSB AI Competition.JPG")
+test_name = get_image_path("Colorfight.JPG")
 test_name2 = get_image_path("CS32.JPG")
 test_name3 = get_image_path("pure_qrcode.jpg")
 nonrecognizableCode = get_image_path("Nonrecognizable.jpg")
@@ -67,19 +67,19 @@ class TestMethods(unittest.TestCase):
         # print(text)
         self.assertEqual(text,'')
 
-    #2. test function for get group name (with image of "CS32.JPG")
-    def test_get_group_name(self):
-        reader = QR.QRCodeReader()
-        text = reader.get_group_name(self.test_image_2)
-        # print(text)
-        self.assertEqual(text,'2018 Spring CS 32')
-
-    #3. test function for get group name (with image of "Colorfight! UCSB AI Competition")
-    def test_get_two_line_group_name(self):
-        reader = QR.QRCodeReader()
-        text = reader.get_group_name(self.test_image)
-        # print(text)
-        self.assertEqual(text, 'Colorfight! UCSB AI Competition')
+    # #2. test function for get group name (with image of "CS32.JPG")
+    # def test_get_group_name(self):
+    #     reader = QR.QRCodeReader()
+    #     text = reader.get_group_name(self.test_image_2)
+    #     # print(text)
+    #     self.assertEqual(text,'2018 Spring CS 32')
+    #
+    # #3. test function for get group name (with image of "Colorfight! UCSB AI Competition")
+    # def test_get_two_line_group_name(self):
+    #     reader = QR.QRCodeReader()
+    #     text = reader.get_group_name(self.test_image)
+    #     # print(text)
+    #     self.assertEqual(text, 'Colorfight! UCSB AI Competition')
 
 
 
@@ -119,20 +119,20 @@ class TestMethods(unittest.TestCase):
 
 
 
-    # test function for add group name function
-    #1. group name without space between
-    def test_add_group_name_without_space(self):
-        reader = QR.QRCodeReader()
-        new_image = reader.generate_image(QR.QRCode(name = 'Colorfight!'))
-        name = reader.get_group_name(new_image)
-        self.assertEqual(name,'Colorfight!')
-
-    #2. group name with space between
-    def test_add_group_name_with_space(self):
-        reader = QR.QRCodeReader()
-        new_image = reader.generate_image(QR.QRCode(name = 'Colorfight! UCSB AI Competition'))
-        name = reader.get_group_name(new_image)
-        self.assertEqual(name,'Colorfight! UCSB AI Competition')
+    # # test function for add group name function
+    # #1. group name without space between
+    # def test_add_group_name_without_space(self):
+    #     reader = QR.QRCodeReader()
+    #     new_image = reader.generate_image(QR.QRCode(name = 'Colorfight!'))
+    #     name = reader.get_group_name(new_image)
+    #     self.assertEqual(name,'Colorfight!')
+    #
+    # #2. group name with space between
+    # def test_add_group_name_with_space(self):
+    #     reader = QR.QRCodeReader()
+    #     new_image = reader.generate_image(QR.QRCode(name = 'Colorfight! UCSB AI Competition'))
+    #     name = reader.get_group_name(new_image)
+    #     self.assertEqual(name,'Colorfight! UCSB AI Competition')
 
 #(url,"https://weixin.qq.com/g/Adg2obWiOHYLufnG")
 
