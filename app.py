@@ -233,7 +233,9 @@ def groups():
         q = q.offset(offset)
         ret_list = [qrcode.to_dict() for qrcode in q.all()]
 
-        return make_response(jsonify ({'results':ret_list}), 200)
+        resp = make_response(jsonify ({'results':ret_list}), 200)
+        resp.headers['Cache-Control'] = 'public, max-age=600'
+        return resp
 
     elif request.method == 'POST':
         data = request.json

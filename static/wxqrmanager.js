@@ -48,10 +48,14 @@ getGroupDom = function(data) {
     return $template
 }
 
-listPage = function(data = {}) {
+listPage = function(data = {}, cacheControl = 'public, max-age=600') {
     $.ajax({
         url: '/api/v1/groups',
         type: 'get',
+        cache: true,
+        headers: {
+            'Cache-Control': cacheControl,
+        },
         data: data,
         success: function(d, st, xhr) {
             $('#group-list-div').empty();
@@ -64,10 +68,10 @@ listPage = function(data = {}) {
                 if ($(document).height() <= $(window).height()) {
                     var finish = function(resultNum) {
                         if (resultNum > 0 && $(document).height() <= $(window).height()) {
-                            appendPage(finish);
+                            appendPage(finish, cacheControl);
                         }
                     };
-                    appendPage(finish)
+                    appendPage(finish, cacheControl)
                 }
             } else {
                 $('#group-list-div').text("We cannot find any QR code with tag \"" + data.keywords + "\".");
@@ -76,7 +80,7 @@ listPage = function(data = {}) {
     })
 }
 
-appendPage = function(finish) {
+appendPage = function(finish, cacheControl) {
     var data = JSON.parse($('#group-list-div').data('args'));
     data['offset'] = $('#group-list-div').data('offset');
     if ($(document).width() >= 576) {
@@ -87,6 +91,10 @@ appendPage = function(finish) {
     $.ajax({
         url: '/api/v1/groups',
         type: 'get',
+        cache: true,
+        headers: {
+            'Cache-Control': cacheControl,
+        },
         data: data,
         success: function(d, st, xhr) {
             displayQRCode(d.results);
@@ -315,7 +323,7 @@ $(function() {
     // Search
     $('body').on("click", "#search-button", function() {
         qrcodeData = {"keywords":$('#search-text').val()};
-        listPage(qrcodeData);
+        listPage(qrcodeData, cacheControl = 'no-cache');
     });
 
     $('#search-text').keypress(function(event) {
@@ -378,7 +386,7 @@ $(function() {
             appendPage()
         }
     });
-    listPage();
+    listPage(data={}, cacheControl='no-cache');
 
     if ($(window).width() < 768) {
       $('#change-view-button-group').addClass("d-none");
