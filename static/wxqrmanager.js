@@ -341,7 +341,6 @@ $(function() {
 
     $('#search-text').keypress(function(event) {
         if (event.which == 13) {
-            console.log('click');
             $('#search-button').trigger("click");
         }
     })
@@ -370,8 +369,6 @@ $(function() {
             $('#tags-list-div').data("tags", $(this).text());
         } else if (tags.indexOf($(this).text()) < 0) {
             tags.push($(this).text());
-            console.log(tags)
-            console.log(tags.join(' '))
             $('#tags-list-div').data("tags", tags.join(' '));
         }
         refreshTags();
@@ -427,13 +424,16 @@ $(function() {
     });
 
     // Parse url data 
-    var urlData = JSON.parse('{"' + decodeURI(window.location.href.slice( window.location.href.indexOf( '?' ) + 1 )).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-    if (urlData["tags"]) {
-        $('#tags-list-div').data("tags", urlData["tags"]);
-        refreshTags();
-    }
-    if (urlData["keywords"]) {
-        $('#search-text').val(urlData['keywords']);
+    var urlData = {};
+    if (window.location.href.indexOf( '?' ) > -1) {
+        urlData = JSON.parse('{"' + decodeURI(window.location.href.slice( window.location.href.indexOf( '?' ) + 1 )).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+        if (urlData["tags"]) {
+            $('#tags-list-div').data("tags", urlData["tags"]);
+            refreshTags();
+        }
+        if (urlData["keywords"]) {
+            $('#search-text').val(urlData['keywords']);
+        }
     }
     listPage(data=urlData, cacheControl='no-cache');
 })
