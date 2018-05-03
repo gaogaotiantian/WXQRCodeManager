@@ -24,7 +24,19 @@ getGroupDom = function(data) {
         }
     }
     if (data.description) {
-        $template.find('.card-text').text(data.description);
+        if (data.description.length > 30) {
+            $template.find('.card-text').text(data.description.substring(0, 30) + "......");
+            $template.find('.card-text').append($('<a>').attr('href', '#').text("read more").click(function() {
+                var tempImg = $(this).closest('.qrcode-img');
+                $('#display-group-name').text(data.name);
+                $('#display-group-description').text(data.description);
+                $('#display-img-preview').attr('src', "/api/v1/qrcode?id=" + data.id);
+                $('#display-img-download').attr('href', "/api/v1/qrcode?id=" + data.id);
+                $('#display-modal').modal("show");
+            }));
+        } else {
+            $template.find('.card-text').text(data.description);
+        }
         $template.find('.qrcode-img').attr('qrcode-description', data.description);
     } else {
         $template.find('.qrcode-img').attr('qrcode-description', "");
@@ -58,15 +70,6 @@ listPage = function(data = {}) {
                     if ($(window).width() >= 768) {
                         if (idx % cardsPerRow === 0) {
                             if (idx > 0) {
-                                var cards = $('#group-list-div').find($('.cardWrapper:last')).children().find($('.card'));
-                                var maxHeight = 0;
-                                cards.each(function() {
-                                    if ($(this).height() > maxHeight) {
-                                        maxHeight = $(this).height();
-                                    }
-                                });
-                                cards.height(maxHeight);
-
                                 var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
                                 $('#group-list-div').append(seperator)
                             }
@@ -84,6 +87,24 @@ listPage = function(data = {}) {
                     } else {
                         qrcodeView = "list";
                         $('#group-list-div').append(getGroupDom(d.results[idx]));
+                    }
+                    if (idx > 0) {
+                        $('#group-list-div').find($('.cardWrapper')).each(function() {
+                            var cards = $(this).children().find($('.card'));
+
+                            // remove the previous setted height
+                            cards.each(function() {
+                                $(this).css('height', 'auto');
+                            });
+
+                            var maxHeight = 0;
+                            cards.each(function() {
+                                if ($(this).height() > maxHeight) {
+                                    maxHeight = $(this).height();
+                                }
+                            });
+                            cards.height(maxHeight);
+                        });
                     }
                 }
                 $('#group-list-div').data('args', JSON.stringify(data));
@@ -120,15 +141,6 @@ appendPage = function(finish) {
                 if ($(window).width() >=768 ) {
                     if (idx % cardsPerRow === 0) {
                         if (idx > 0) {
-                            var cards = $('#group-list-div').find($('.cardWrapper:last')).children().find($('.card'));
-                            var maxHeight = 0;
-                            cards.each(function() {
-                                if ($(this).height() > maxHeight) {
-                                    maxHeight = $(this).height();
-                                }
-                            });
-                            cards.height(maxHeight);
-
                             var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
                             $('#group-list-div').append(seperator)
                         }
@@ -146,6 +158,24 @@ appendPage = function(finish) {
                 } else {
                     qrcodeView = "list";
                     $('#group-list-div').append(getGroupDom(d.results[idx]));
+                }
+                if (idx > 0) {
+                    $('#group-list-div').find($('.cardWrapper')).each(function() {
+                        var cards = $(this).children().find($('.card'));
+
+                        // remove the previous setted height
+                        cards.each(function() {
+                            $(this).css('height', 'auto');
+                        });
+
+                        var maxHeight = 0;
+                        cards.each(function() {
+                            if ($(this).height() > maxHeight) {
+                                maxHeight = $(this).height();
+                            }
+                        });
+                        cards.height(maxHeight);
+                    });
                 }
             }
             $('#group-list-div').data('offset', data['offset'] + d.results.length);
@@ -407,6 +437,7 @@ $(function() {
             cards.height(maxHeight);
         });
 
+        // Restrict to list view when window width is less than 768
         if ($(window).width() < 768) {
           $('#change-view-button-group').addClass("d-none");
           qrcodeView = "list";
