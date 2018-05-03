@@ -43,6 +43,7 @@ class QRCodeDb(db.Model):
     url          = db.Column(db.String(256))
     add_time     = db.Column(db.Float)
     expire_time  = db.Column(db.Float)
+    expired      = db.Column(db.Boolean, default = False)
     name         = db.Column(db.String(256))
     tags         = db.Column(db.String(256))
     description  = db.Column(db.Text)
@@ -70,7 +71,7 @@ db.create_all()
 def clearDatabase():
     QRCodeDb.query.filter(QRCodeDb.valid == False).filter(QRCodeDb.add_time < time.time() - SESSION_TIMEOUT).delete()
     db.session.commit()
-    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).update(dict(valid=False))
+    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).update(dict(expired=True))
     db.session.commit()
 
 
@@ -222,6 +223,7 @@ def groups():
 
         q = QRCodeDb.query
         q = q.filter_by(valid = True)
+        q = q.filter_by(expired = False)
         for keyword in keywords:
             q = q.filter(QRCodeDb.search_text.ilike("%"+keyword+"%"))
 
