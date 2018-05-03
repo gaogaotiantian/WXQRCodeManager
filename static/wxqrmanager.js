@@ -25,14 +25,10 @@ getGroupDom = function(data) {
     }
     if (data.description) {
         if (data.description.length > 30) {
-            $template.find('.card-text').text(data.description.substring(0, 30) + "......");
-            $template.find('.card-text').append($('<a>').attr('href', '#').text("read more").click(function() {
-                var tempImg = $(this).closest('.qrcode-img');
-                $('#display-group-name').text(data.name);
-                $('#display-group-description').text(data.description);
-                $('#display-img-preview').attr('src', "/api/v1/qrcode?id=" + data.id);
-                $('#display-img-download').attr('href', "/api/v1/qrcode?id=" + data.id);
-                $('#display-modal').modal("show");
+            $template.find('.card-text').text(data.description.substring(0, 30) + "…… ");
+            $template.find('.card-text').append($('<a>').attr('href', '#/').text("展开").css("font-weight", "bolder").click(function() {
+                $template.find('.card-text').text(data.description);
+                adjustCardsHeight();
             }));
         } else {
             $template.find('.card-text').text(data.description);
@@ -59,54 +55,10 @@ listPage = function(data = {}) {
         data: data,
         success: function(d, st, xhr) {
             $('#group-list-div').empty();
-            if (qrcodeView === "list") {
-                var cardsPerRow = 3;
-            } else if (qrcodeView === "block") {
-                var cardsPerRow = 4;
-            }
 
             if (d.results.length > 0) {
-                for (idx in d.results) {
-                    if ($(window).width() >= 768) {
-                        if (idx % cardsPerRow === 0) {
-                            if (idx > 0) {
-                                var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
-                                $('#group-list-div').append(seperator)
-                            }
-                            var tempRow = $(document.createElement('div')).addClass('row cardWrapper');
-                            $('#group-list-div').append(tempRow);
-                        }
-                        var tempCol = $(document.createElement('div'));
-                        if (qrcodeView === "list") {
-                            tempCol.addClass('col-12 col-md-4');
-                        } else if (qrcodeView === "block") {
-                            tempCol.addClass('col-6 col-md-3');
-                        }
-                        tempCol.append(getGroupDom(d.results[idx]));
-                        $('#group-list-div').find($('.cardWrapper:last')).append(tempCol);
-                    } else {
-                        qrcodeView = "list";
-                        $('#group-list-div').append(getGroupDom(d.results[idx]));
-                    }
-                    if (idx > 0) {
-                        $('#group-list-div').find($('.cardWrapper')).each(function() {
-                            var cards = $(this).children().find($('.card'));
+                displayQRCode(d.results);
 
-                            // remove the previous setted height
-                            cards.each(function() {
-                                $(this).css('height', 'auto');
-                            });
-
-                            var maxHeight = 0;
-                            cards.each(function() {
-                                if ($(this).height() > maxHeight) {
-                                    maxHeight = $(this).height();
-                                }
-                            });
-                            cards.height(maxHeight);
-                        });
-                    }
-                }
                 $('#group-list-div').data('args', JSON.stringify(data));
                 $('#group-list-div').data('offset', d.results.length);
                 if ($(document).height() <= $(window).height()) {
@@ -137,53 +89,67 @@ appendPage = function(finish) {
         type: 'get',
         data: data,
         success: function(d, st, xhr) {
-            for (idx in d.results) {
-                if ($(window).width() >=768 ) {
-                    if (idx % cardsPerRow === 0) {
-                        if (idx > 0) {
-                            var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
-                            $('#group-list-div').append(seperator)
-                        }
-                        var tempRow = $(document.createElement('div')).addClass('row cardWrapper');
-                        $('#group-list-div').append(tempRow);
-                    }
-                    var tempCol = $(document.createElement('div'));
-                    if (qrcodeView === "list") {
-                        tempCol.addClass('col-12 col-md-4');
-                    } else if (qrcodeView === "block") {
-                        tempCol.addClass('col-6 col-md-3');
-                    }
-                    tempCol.append(getGroupDom(d.results[idx]));
-                    $('#group-list-div').find($('.cardWrapper:last')).append(tempCol);
-                } else {
-                    qrcodeView = "list";
-                    $('#group-list-div').append(getGroupDom(d.results[idx]));
-                }
-                if (idx > 0) {
-                    $('#group-list-div').find($('.cardWrapper')).each(function() {
-                        var cards = $(this).children().find($('.card'));
+            displayQRCode(d.results);
 
-                        // remove the previous setted height
-                        cards.each(function() {
-                            $(this).css('height', 'auto');
-                        });
-
-                        var maxHeight = 0;
-                        cards.each(function() {
-                            if ($(this).height() > maxHeight) {
-                                maxHeight = $(this).height();
-                            }
-                        });
-                        cards.height(maxHeight);
-                    });
-                }
-            }
             $('#group-list-div').data('offset', data['offset'] + d.results.length);
             if (finish) {
                 finish(d.results.length);
             }
         }
     })
+}
+
+displayQRCode = function(results) {
+    if (qrcodeView === "list") {
+        var cardsPerRow = 3;
+    } else if (qrcodeView === "block") {
+        var cardsPerRow = 4;
+    }
+
+    for (idx in results) {
+        if ($(window).width() >= 768 ) {
+            if (idx % cardsPerRow === 0) {
+                if (idx > 0) {
+                    var seperator = $(document.createElement('hr')).addClass('bs-docs-separator');
+                    $('#group-list-div').append(seperator)
+                }
+                var tempRow = $(document.createElement('div')).addClass('row cardWrapper');
+                $('#group-list-div').append(tempRow);
+            }
+            var tempCol = $(document.createElement('div'));
+            if (qrcodeView === "list") {
+                tempCol.addClass('col-12 col-md-4');
+            } else if (qrcodeView === "block") {
+                tempCol.addClass('col-6 col-md-3');
+            }
+            tempCol.append(getGroupDom(results[idx]));
+            $('#group-list-div').find($('.cardWrapper:last')).append(tempCol);
+        } else {
+            qrcodeView = "list";
+            $('#group-list-div').append(getGroupDom(results[idx]));
+        }
+
+        adjustCardsHeight();
+    }
+}
+
+adjustCardsHeight = function() {
+    $('#group-list-div').find($('.cardWrapper')).each(function() {
+        var cards = $(this).children().find($('.card'));
+
+        // remove the previous setted height
+        cards.each(function() {
+            $(this).css('height', 'auto');
+        });
+
+        var maxHeight = 0;
+        cards.each(function() {
+            if ($(this).height() > maxHeight) {
+                maxHeight = $(this).height();
+            }
+        });
+        cards.height(maxHeight);
+    });
 }
 
 refreshTags = function() {
@@ -417,26 +383,9 @@ $(function() {
     if ($(window).width() < 768) {
       $('#change-view-button-group').addClass("d-none");
     }
+
     // Things to do when user resize the window
     $(window).resize(function() {
-        // reset the  height for cards in each row
-        $('#group-list-div').find($('.cardWrapper')).each(function() {
-            var cards = $(this).children().find($('.card'));
-
-            // remove the previous setted height
-            cards.each(function() {
-                $(this).css('height', 'auto');
-            });
-
-            var maxHeight = 0;
-            cards.each(function() {
-                if ($(this).height() > maxHeight) {
-                    maxHeight = $(this).height();
-                }
-            });
-            cards.height(maxHeight);
-        });
-
         // Restrict to list view when window width is less than 768
         if ($(window).width() < 768) {
           $('#change-view-button-group').addClass("d-none");
@@ -450,6 +399,7 @@ $(function() {
           }
         }
 
-        listPage(qrcodeData);
+        // reset the  height for cards in each row
+        adjustCardsHeight();
     });
 })
