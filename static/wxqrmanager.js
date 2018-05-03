@@ -26,7 +26,8 @@ getGroupDom = function(data) {
     if (data.description) {
         if (data.description.length > 30) {
             $template.find('.card-text').text(data.description.substring(0, 30) + "…… ");
-            $template.find('.card-text').append($('<a>').attr('href', '#/').text("展开").css("font-weight", "bolder").click(function() {
+            $template.find('.card-text').append($('<a>').attr('href', '#').text("展开").css("font-weight", "bolder").click(function(e) {
+                e.preventDefault();
                 $template.find('.card-text').text(data.description);
                 adjustCardsHeight();
             }));
@@ -423,7 +424,7 @@ $(function() {
         adjustCardsHeight();
     });
 
-    // Parse url data 
+    // Parse url data
     var urlData = {};
     if (window.location.href.indexOf( '?' ) > -1) {
         urlData = JSON.parse('{"' + decodeURI(window.location.href.slice( window.location.href.indexOf( '?' ) + 1 )).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
