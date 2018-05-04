@@ -124,8 +124,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     url = args.input_url[0]
     test_code = args.test_code
-    if not url.startswith("http://"):
-        url = "http://" + url
+    url_dct = {"remote": "https://wxqrcodemanager.herokuapp.com"}
+    if url in url_dct:
+        url = url_dct[url]
+    else:
+        if not url.startswith("http://") and not url.startswith("https://"):
+            url = "http://" + url
     try:
         r = requests.get(url + '/')
     except:
