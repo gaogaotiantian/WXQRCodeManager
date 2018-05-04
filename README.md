@@ -27,17 +27,23 @@ brew install tesseract --with-all-languages
 
 ## Run Test for the Module
 
-### Activate Virtual Environment
-```
-python -m venv QRCodeReader.QRCodeVal
-source QRCodeReader.QRCodeVal/bin/activate
-```
-To deactivate it, just run
-```
-deactivate
-```
-
-### Run Gunicorn
+### Run local server
 ```
 gunicorn app:app
+```
+
+### Run QRCodeReader Test
+```
+python -m QRCodeReader.QRCodeTest
+```
+
+### Run back-end test
+```
+cd test
+python ServerVal.py <server_url>
+```
+example:
+```
+python ServerVal.py https://wxqrcodemanager.herokuapp.com
+python ServerVal.py localhost:8000
 ```
