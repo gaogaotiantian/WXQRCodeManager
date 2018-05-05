@@ -9,6 +9,7 @@ from PIL import ImageDraw
 import os
 import numpy as np
 import pytesseract
+import re
 
 def set_tesseract_path(path):
     pytesseract.pytesseract.tesseract_cmd = path
@@ -229,7 +230,18 @@ class QRCodeReader:
         c_im=im.crop(rec)
         #c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
-        return text
+        text = text.replace(" ", "")
+        m = re.search("(([0-9]+)/([0-9]+))|(([0-9]+)月([0-9]+)日)", text)
+        if m:
+            res = m.groups()
+            try:
+                if res[0]:
+                    return (int(res[1]), int(res[2]))
+                elif res[3]:
+                    return (int(res[4]), int(res[5]))
+            except:
+                return None
+        return None
 
 '''
 Simple test code can he bere

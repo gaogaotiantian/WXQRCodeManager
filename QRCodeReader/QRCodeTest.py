@@ -89,19 +89,19 @@ class TestMethods(unittest.TestCase):
     def test_get_pureqrcode_date(self):
         reader = QR.QRCodeReader()
         date = reader.get_date(self.test_image_3)
-        self.assertEqual(date,'')
+        self.assertEqual(date,None)
 
     #2. test function with "CS32.JPG"
     def test_get_date_Chinese_system(self):
         reader = QR.QRCodeReader()
         date = reader.get_date(self.test_image_2)
-        self.assertEqual(date, '5/4')
+        self.assertEqual(date, (5,4))
 
     #3. test function with "Colorfight! UCSB AI Competition"
     def test_get_date_English_system(self):
         reader = QR.QRCodeReader()
         date = reader.get_date(self.test_image)
-        self.assertEqual(date, '5/9')
+        self.assertEqual(date, (5,9))
 
 
     # test function for add date function (do not know the syntax for the date -> just regular test case)
@@ -109,13 +109,13 @@ class TestMethods(unittest.TestCase):
         reader = QR.QRCodeReader()
         new_image = reader.generate_image(QR.QRCode(date = '5/9'))
         date = reader.get_date(new_image)
-        self.assertEqual(date,'5/9')
+        self.assertEqual(date,(5,9))
 
     def test_add_date_separated_by_slash_2(self):
         reader = QR.QRCodeReader()
         new_image = reader.generate_image(QR.QRCode(date = '5/4'))
         date = reader.get_date(new_image)
-        self.assertEqual(date,'5/4')
+        self.assertEqual(date,(5,4))
 
 
 
