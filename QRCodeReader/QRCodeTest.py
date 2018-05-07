@@ -12,10 +12,9 @@ def get_image_path(file_name):
     return os.path.join(current_path,"test_images",file_name)
 
 
-test_name = get_image_path("Colorfight.JPG")
-test_name2 = get_image_path("CS32.JPG")
-test_name3 = get_image_path("pure_qrcode.jpg")
-nonrecognizableCode = get_image_path("Nonrecognizable.jpg")
+test_image_twline_groupname_Eng_date = get_image_path("Colorfight.JPG")
+test_image_groupname_with_space_Chinese_date = get_image_path("CS32.JPG")
+test_name_of_pureQRCode = get_image_path("pure_qrcode.jpg")
 #print(test_name)
 
 class TestMethods(unittest.TestCase):
@@ -44,9 +43,9 @@ class TestMethods(unittest.TestCase):
 
     #If setUp() succeeded, tearDown() will be run whether the test method succeeded or not
 
-    test_image = Image.open(test_name)
-    test_image_2 = Image.open(test_name2)
-    test_image_3 = Image.open(test_name3)
+    test_image_twoline_groupname_EnglishDate = Image.open(test_image_twline_groupname_Eng_date)
+    test_image_space_between_groupname_ChineseDate = Image.open(test_image_groupname_with_space_Chinese_date)
+    test_image_pureQRCode = Image.open(test_name_of_pureQRCode)
 
 
 
@@ -54,7 +53,7 @@ class TestMethods(unittest.TestCase):
     def test_get_position_func(self):
         coordinate = np.zeros(8)    #decide shape
         reader = QR.QRCodeReader()
-        result = reader.get_position(self.test_image,coordinate)
+        result = reader.get_position(self.test_image_twoline_groupname_EnglishDate,coordinate)
         self.assertTrue(result)
 
 
@@ -63,7 +62,7 @@ class TestMethods(unittest.TestCase):
     #1. test get group name with pure code (result should be '')
     def test_get_purecode_group_name(self):
         reader = QR.QRCodeReader()
-        text = reader.get_group_name(self.test_image_3)
+        text = reader.get_group_name(self.test_image_pureQRCode)
         # print(text)
         self.assertEqual(text,'')
 
@@ -88,23 +87,23 @@ class TestMethods(unittest.TestCase):
     #1. test function for with pure code
     def test_get_pureqrcode_date(self):
         reader = QR.QRCodeReader()
-        date = reader.get_date(self.test_image_3)
+        date = reader.get_date(self.test_image_pureQRCode)
         self.assertEqual(date,None)
 
     #2. test function with "CS32.JPG"
     def test_get_date_Chinese_system(self):
         reader = QR.QRCodeReader()
-        date = reader.get_date(self.test_image_2)
+        date = reader.get_date(self.test_image_space_between_groupname_ChineseDate)
         self.assertEqual(date, (5,4))
 
     #3. test function with "Colorfight! UCSB AI Competition"
     def test_get_date_English_system(self):
         reader = QR.QRCodeReader()
-        date = reader.get_date(self.test_image)
+        date = reader.get_date(self.test_image_twoline_groupname_EnglishDate)
         self.assertEqual(date, (5,9))
 
 
-    # test function for add date function (do not know the syntax for the date -> just regular test case)
+    # test function for add date function (date in tuple)
     def test_add_date_separated_by_slash(self):
         reader = QR.QRCodeReader()
         new_image = reader.generate_image(QR.QRCode(date = '5/9'))
