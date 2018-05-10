@@ -29,6 +29,12 @@ if os.environ.get('TESSERACT_PATH') != None:
 
 # 10 minutes for timeout
 SESSION_TIMEOUT = 600
+# Database input value limits
+DB_INTEGER_MAX = 2147483647
+DB_STRING256_MAX = 256
+DB_TEXT_MAX = 65535
+DB_SESSION_ID_LEN = 32
+
 
 app = Flask(__name__, static_url_path = '/static')
 
@@ -243,14 +249,24 @@ def groups():
         data = request.json
         if data == None:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+
+
         try:
-            id = data['id']
-            name = data['name']
-            tags = data['tags']
-            description = data['description']
-            session_id = data['session_id']
+            id = data['id'] # size < Integer
+            name = data['name'] # size < 256
+            tags = data['tags'] # size < 256
+            description = data['description'] # size < Text
+            session_id = data['session_id'] # size == 32
+
+            #DEBUG: Check if the size of input values
+            assert(id <= DB_INTEGER_MAX)
+            assert(len(name) <= DB_STRING256_MAX)
+            assert(len(tags) <= DB_STRING256_MAX)
+            assert(len(description) <= DB_TEXT_MAX)
+            assert(len(session_id) == DB_SESSION_ID_LEN)
         except:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
+
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             if session_id != qrInfo.session_id:
@@ -267,7 +283,7 @@ def groups():
             db.session.commit()
         else:
             return make_response(jsonify({"err_msg":"Invalid parameter"}), 400)
-    
+
     elif request.method == 'DELETE':
         data = request.json
         if data == None:
