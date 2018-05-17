@@ -255,8 +255,7 @@ class QRCodeReader:
         #c_im.show()
         text=pytesseract.image_to_string(c_im,lang='chi_sim')
         text = text.replace(" ", "")
-        print(text)
-        m = re.search("(([0-9]+)/([0-9]+))|(([0-9]+)月([0-9]+)日)", text)
+        m = re.search("(([0-9]+)/([0-9]+))|(([0-9]+)月([0-9]+))", text)
         if m:
             res = m.groups()
             try:
