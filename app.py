@@ -148,6 +148,7 @@ def qrcode():
                 return make_response(jsonify({"err_msg":"The QRCode is not a valid WeChat group code."}), 400)
 
             expireTime = qrcode.get_expire_time()
+            print(expireTime, qrcode.date, time.time())
             if expireTime < time.time():
                 return make_response(jsonify({"err_msg":"The QRCode is already expired"}), 400)
             # Generate the session_id and session_time pair
