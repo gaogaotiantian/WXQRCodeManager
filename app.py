@@ -79,6 +79,8 @@ def clearDatabase():
     db.session.commit()
     QRCodeDb.query.filter(QRCodeDb.expire_time < time.time()).update(dict(expired=True))
     db.session.commit()
+    QRCodeDb.query.filter(QRCodeDb.expire_time < time.time() - 7*24*3600).delete()
+    db.session.commit()
 
 
 '''
@@ -113,7 +115,8 @@ def qrcode():
         qrInfo = QRCodeDb.query.get(id)
         if qrInfo != None:
             reader = QR.QRCodeReader()
-            image = reader.generate_image(QR.QRCode(url = qrInfo.url, name = qrInfo.name, date=""))
+            tm = time.gmtime(qrInfo.expire_time)
+            image = reader.generate_image(QR.QRCode(url = qrInfo.url, name = qrInfo.name, date=(tm.tm_mon,tm.tm_mday)))
             qrInfo.read = qrInfo.read + 1
             db.session.commit()
             # Convert the image into Bytes
@@ -143,6 +146,10 @@ def qrcode():
             # Check whether url is a valid wechat group url
             if not url.startswith("https://weixin.qq.com/g/"):
                 return make_response(jsonify({"err_msg":"The QRCode is not a valid WeChat group code."}), 400)
+
+            expireTime = qrcode.get_expire_time()
+            if expireTime < time.time():
+                return make_response(jsonify({"err_msg":"The QRCode is already expired"}), 400)
             # Generate the session_id and session_time pair
             session_id = base64.urlsafe_b64encode(os.urandom(24)).decode('utf-8')
             session_time = time.time()
@@ -154,7 +161,7 @@ def qrcode():
                 qrInfo.id = maxId + 1 if maxId != None else 1
                 qrInfo.url = url
                 qrInfo.add_time = time.time()
-                qrInfo.expire_time = time.time() + 7*24*3600
+                qrInfo.expire_time = expireTime
                 qrInfo.name = ""
                 qrInfo.tags = ""
                 qrInfo.description = ""

@@ -10,6 +10,7 @@ import os
 import numpy as np
 import pytesseract
 import re
+import time
 
 def set_tesseract_path(path):
     pytesseract.pytesseract.tesseract_cmd = path
@@ -19,6 +20,22 @@ class QRCode:
         self.url = url
         self.name = name
         self.date = date
+
+    def get_expire_time(self):
+        date = self.date
+        if date:
+            currTime = time.time()
+            currTm = time.gmtime()
+            testTime = time.mktime(time.struct_time((currTm.tm_year, date[0], date[1], 23, 59, 59, 0, 0, 0)))
+            if testTime < currTime:
+                testTime2 = time.mktime(time.struct_time((currTm.tm_year+1, date[0], date[1], 23, 59, 59, 0, 0, 0)))
+
+                if testTime2 < currTime + 8*24*3600:
+                    return testTime2
+            return testTime
+        return time.time() + 7*24*3600
+            
+
 class QRCodeReader:
     def __init__(self):
         pass
@@ -38,10 +55,10 @@ class QRCodeReader:
         qr_code = pyqrcode.create(url)
         base64_str = qr_code.png_as_base64_str(scale=10)
         im = Image.open(BytesIO(base64.b64decode(base64_str)))
-        im=im.resize((760,760))
+        #im=im.resize((760,760))
         #760, 760 deafult for the qrcode in wechat
         img_w, img_h = im.size
-        result=Image.new(mode="RGB",size=(1000,1300),color=(255,255,255))
+        result=Image.new(mode="RGB",size=(500,750),color=(255,255,255))
         #1000x1300 is the default size for wechar qrcode 
         bg_w, bg_h = result.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
@@ -127,7 +144,7 @@ class QRCodeReader:
         height=arr[3]
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 50)
+        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 40)
 
         w,h=draw.textsize(word,font=font)
         #put word in center
@@ -137,6 +154,8 @@ class QRCodeReader:
         return image
 
     def add_date(self, image, date):
+        if type(date) != tuple or len(date) != 2:
+            return image
         img_w, img_h = image.size
         coordinate=np.zeros(8)
         arr=self.get_position(image,coordinate)
@@ -149,13 +168,17 @@ class QRCodeReader:
 
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 35)
+        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 25)
 
-        w,h=draw.textsize(date,font=font)
+        date_str = "本二维码最晚于{}月{}日过期".format(date[0], date[1])
+        copyright_str = "二维码由北美微信群提供"
+
+        w,h=draw.textsize(date_str,font=font)
         #center
         x=left+width/2-w/2
         y=img_h-(img_h-top-height)/2
-        draw.text((x,y),date,(0,0,0),font=font)
+        draw.text((x,y-25),date_str,(0,0,0),font=font)
+        draw.text((x+20,y+25),copyright_str,(0,0,0),font=font)
         #image.save("test.png")
         return image
 
@@ -174,7 +197,8 @@ class QRCodeReader:
         if len(d) == 0:
             return None
         name = self.get_group_name(image)
-        qrcode = QRCode(url = d[0].data.decode('utf-8'), name = name)
+        date = self.get_date(image)
+        qrcode = QRCode(url = d[0].data.decode('utf-8'), name = name, date = date)
 
         return qrcode
     '''
