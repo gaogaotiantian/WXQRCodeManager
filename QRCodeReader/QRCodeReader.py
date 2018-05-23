@@ -11,6 +11,7 @@ import numpy as np
 import pytesseract
 import re
 import time
+import cProfile
 
 def set_tesseract_path(path):
     pytesseract.pytesseract.tesseract_cmd = path
@@ -63,9 +64,9 @@ class QRCodeReader:
         bg_w, bg_h = result.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
         result.paste(im,offset)
-        if(name!=''):
+        if name:
             result = self.add_groupname(result, name)
-        if(date!=''):
+        if date:
             result = self.add_date(result, date)
         '''
         im=im.convert('RGBA')
@@ -196,9 +197,9 @@ class QRCodeReader:
         d = decode(image)
         if len(d) == 0:
             return None
-        name = self.get_group_name(image)
+        #name = self.get_group_name(image)
         date = self.get_date(image)
-        qrcode = QRCode(url = d[0].data.decode('utf-8'), name = name, date = date)
+        qrcode = QRCode(url = d[0].data.decode('utf-8'), name = None, date = date)
 
         return qrcode
     '''
@@ -272,17 +273,9 @@ Simple test code can he bere
 '''
 if __name__ == '__main__':
     reader = QRCodeReader()
-    im = reader.generate_image(QRCode(url = "abc"))
+    cProfile.run('im = reader.generate_image(QRCode(url = "abc"))')
     image=reader.add_groupname(im,"ABC")
     image=reader.add_date(image,"1/2/2018")
 
-    assert(reader.get_qrcode_data(im).url == "abc")
+    cProfile.run('assert(reader.get_qrcode_data(im).url == "abc")')
     print("test passed")
-    text=reader.get_group_name(image)
-    print(text)
-    assert(text=="ABC")
-    print("add_groupname passed")
-    text=reader.get_date(image)
-    print(text)
-    assert(text=="1/2/2018")
-    print("add_date passed")
