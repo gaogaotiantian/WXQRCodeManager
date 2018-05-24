@@ -15,6 +15,7 @@ def get_image_path(file_name):
 test_image_twline_groupname_Eng_date = get_image_path("Colorfight.JPG")
 test_image_groupname_with_space_Chinese_date = get_image_path("CS32.JPG")
 test_name_of_pureQRCode = get_image_path("pure_qrcode.jpg")
+test_name_date_5_23 = get_image_path("wx_5_23.jpeg")
 #print(test_name)
 
 class TestMethods(unittest.TestCase):
@@ -46,6 +47,7 @@ class TestMethods(unittest.TestCase):
     test_image_twoline_groupname_EnglishDate = Image.open(test_image_twline_groupname_Eng_date)
     test_image_space_between_groupname_ChineseDate = Image.open(test_image_groupname_with_space_Chinese_date)
     test_image_pureQRCode = Image.open(test_name_of_pureQRCode)
+    test_image_date_5_23 = Image.open(test_name_date_5_23)
 
 
 
@@ -95,6 +97,11 @@ class TestMethods(unittest.TestCase):
         reader = QR.QRCodeReader()
         date = reader.get_date(self.test_image_space_between_groupname_ChineseDate)
         self.assertEqual(date, (5,4))
+
+    def test_get_date_Chinese_system2(self):
+        reader = QR.QRCodeReader()
+        date = reader.get_date(self.test_image_date_5_23)
+        self.assertEqual(date, (5,23))
 
     #3. test function with "Colorfight! UCSB AI Competition"
     def test_get_date_English_system(self):
