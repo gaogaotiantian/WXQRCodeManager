@@ -172,7 +172,7 @@ class QRCodeReader:
         font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 25)
 
         date_str = "本二维码最晚于{}月{}日过期".format(date[0], date[1])
-        copyright_str = "二维码由北美微信群提供"
+        copyright_str = "二维码由北美微信群(nawxqun.com)提供"
 
         w,h=draw.textsize(date_str,font=font)
         #center
