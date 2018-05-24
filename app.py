@@ -62,7 +62,7 @@ class QRCodeDb(db.Model):
     fingerprint  = db.Column(db.String(32))
 
     def to_dict(self, include = [], exclude = []):
-        defaultInclude = ["id", "name", "description", "tags", "image", "read"]
+        defaultInclude = ["id", "name", "description", "tags", "thumbnail", "read"]
         for i in include:
             defaultInclude.append(i)
         for e in exclude:
@@ -73,7 +73,7 @@ class QRCodeDb(db.Model):
             if hasattr(self, i):
                 if i == "tags":
                     ret['tags'] = self.tags.strip().split()
-                elif i == "image":
+                elif i == "thumbnail":
                     ret["image"] = self.thumbnail
                 else:
                     ret[i] = getattr(self, i)
