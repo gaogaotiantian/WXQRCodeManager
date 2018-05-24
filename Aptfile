@@ -1,4 +1,5 @@
 libzbar-dev
+libpng-dev
 tesseract-ocr
 tesseract-ocr-eng
 tesseract-ocr-chi-sim
