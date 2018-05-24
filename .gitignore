@@ -28,6 +28,7 @@
 /static/*
 !/static/*.js
 !/static/*.css
+!/static/favicon.ico
 
 *.pyc
 
