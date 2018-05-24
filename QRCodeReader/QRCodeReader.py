@@ -179,7 +179,11 @@ class QRCodeReader:
         x=left+width/2-w/2
         y=img_h-(img_h-top-height)/2
         draw.text((x,y-25),date_str,(0,0,0),font=font)
-        draw.text((x+20,y+25),copyright_str,(0,0,0),font=font)
+
+        w,h=draw.textsize(copyright_str,font=font)
+        x=left+width/2-w/2
+        y=img_h-(img_h-top-height)/2
+        draw.text((x,y+25),copyright_str,(0,0,0),font=font)
         #image.save("test.png")
         return image
 
