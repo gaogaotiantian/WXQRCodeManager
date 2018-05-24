@@ -61,15 +61,22 @@ class QRCodeDb(db.Model):
     thumbnail    = db.Column(db.String(1024))
     fingerprint  = db.Column(db.String(32))
 
-    def to_dict(self):
+    def to_dict(self, include = [], exclude = []):
+        defaultInclude = ["id", "name", "description", "tags", "image", "read"]
+        for i in include:
+            defaultInclude.append(i)
+        for e in exclude:
+            if e in defaultInclude:
+                defaultInclude.remove(e)
         ret = {}
-        ret['id'] = self.id
-        ret['name'] = self.name
-        ret['description'] = self.description
-        ret['tags'] = self.tags.strip().split()
-        ret['session_id'] = self.session_id
-        ret['image'] = self.thumbnail
-        ret['read'] = self.read
+        for i in defaultInclude:
+            if hasattr(self, i):
+                if i == "tags":
+                    ret['tags'] = self.tags.strip().split()
+                elif i == "image":
+                    ret["image"] = self.thumbnail
+                else:
+                    ret[i] = getattr(self, i)
         return ret
 
 db.create_all()
@@ -173,13 +180,13 @@ def qrcode():
                 qrInfo.fingerprint = hashlib.md5(image.tobytes()).hexdigest()
                 db.session.add(qrInfo)
                 db.session.commit()
-                return make_response(jsonify(qrInfo.to_dict()), 201)
+                return make_response(jsonify(qrInfo.to_dict(include=['session_id'])), 201)
             else:
                 if hashlib.md5(image.tobytes()).hexdigest() == urlDb.fingerprint:
                     urlDb.session_id = session_id
                     urlDb.session_time = session_time
                     db.session.commit()
-                    return make_response(jsonify(urlDb.to_dict()), 200)
+                    return make_response(jsonify(urlDb.to_dict(include=['session_id'])), 200)
                 else:
                     return make_response(jsonify({"err_msg":"This QRCode has been uploaded and you do not have the access to modify it."}), 400)
 
