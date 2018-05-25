@@ -59,7 +59,7 @@ class QRCodeReader:
         #im=im.resize((760,760))
         #760, 760 deafult for the qrcode in wechat
         img_w, img_h = im.size
-        result=Image.new(mode="RGB",size=(500,750),color=(255,255,255))
+        result=Image.new(mode="RGB",size=(450,600),color=(255,255,255))
         #1000x1300 is the default size for wechar qrcode 
         bg_w, bg_h = result.size
         offset = ((bg_w - img_w) // 2, (bg_h - img_h) // 2)
@@ -169,21 +169,22 @@ class QRCodeReader:
 
         image=image.convert('RGB')
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 25)
+        font_date = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 25)
+        font_copyright = ImageFont.truetype(os.path.dirname(os.path.realpath(__file__)) + "/wqy-zenhei.ttc", 18)
 
         date_str = "本二维码最晚于{}月{}日过期".format(date[0], date[1])
         copyright_str = "二维码由北美微信群(nawxqun.com)提供"
 
-        w,h=draw.textsize(date_str,font=font)
+        w,h=draw.textsize(date_str,font=font_date)
         #center
         x=left+width/2-w/2
         y=img_h-(img_h-top-height)/2
-        draw.text((x,y-25),date_str,(0,0,0),font=font)
+        draw.text((x,y-30),date_str,(0,0,0),font=font_date)
 
-        w,h=draw.textsize(copyright_str,font=font)
+        w,h=draw.textsize(copyright_str,font=font_copyright)
         x=left+width/2-w/2
         y=img_h-(img_h-top-height)/2
-        draw.text((x,y+25),copyright_str,(0,0,0),font=font)
+        draw.text((x,y+20),copyright_str,(127,127,127),font=font_copyright)
         #image.save("test.png")
         return image
 
