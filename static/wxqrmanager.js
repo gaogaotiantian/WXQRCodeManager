@@ -142,9 +142,8 @@ displayQRCode = function(results) {
             qrcodeView = "list";
             $('#group-list-div').append(getGroupDom(results[idx]));
         }
-
-        adjustCardsHeight();
     }
+    adjustCardsHeight();
 }
 
 adjustCardsHeight = function() {
@@ -154,15 +153,16 @@ adjustCardsHeight = function() {
         // remove the previous setted height
         cards.each(function() {
             $(this).css('height', 'auto');
+        }).promise().done(function() {
+            var maxHeight = 0;
+            cards.each(function() {
+                if ($(this).height() > maxHeight) {
+                    maxHeight = $(this).height();
+                }
+            }).promise().done(function() {
+                cards.height(maxHeight);
+            });
         });
-
-        var maxHeight = 0;
-        cards.each(function() {
-            if ($(this).height() > maxHeight) {
-                maxHeight = $(this).height();
-            }
-        });
-        cards.height(maxHeight);
     });
 }
 
