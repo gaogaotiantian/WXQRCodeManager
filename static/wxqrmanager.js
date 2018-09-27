@@ -92,7 +92,7 @@ appendPage = function(finish, cacheControl) {
     if ($(document).width() >= 576) {
         data['limit'] = 12;
     } else {
-        data['limit'] = 5;
+        data['limit'] = 6;
     }
     $.ajax({
         url: '/api/v1/groups',
@@ -113,6 +113,14 @@ appendPage = function(finish, cacheControl) {
     })
 }
 
+doSearch = function() {
+    var qrcodeData = {};
+    if ($('#search-text').val() != "") {
+        qrcodeData = {"keywords":$('#search-text').val()};
+    }
+    listPage(qrcodeData, cacheControl = 'no-cache');
+}
+
 displayQRCode = function(results) {
     if (qrcodeView === "list") {
         var cardsPerRow = 3;
@@ -123,10 +131,8 @@ displayQRCode = function(results) {
     for (idx in results) {
         if ($(window).width() >= 768 ) {
             if (idx % cardsPerRow === 0) {
-                if (idx > 0) {
-                    var seperator = $('<hr>').addClass('bs-docs-separator');
-                    $('#group-list-div').append(seperator)
-                }
+                var seperator = $('<hr>').addClass('bs-docs-separator');
+                $('#group-list-div').append(seperator)
                 var tempRow = $('<div>').addClass('row cardWrapper');
                 $('#group-list-div').append(tempRow);
             }
@@ -329,18 +335,17 @@ $(function() {
     });
 
     // Search
+    var doSearchTimeout = null;
     $('body').on("click", "#search-button", function() {
-        if ($('#search-text').val() != "") {
-            qrcodeData = {"keywords":$('#search-text').val()};
-        } else {
-            qrcodeData = {};
-        }
-        listPage(qrcodeData, cacheControl = 'no-cache');
+        doSearch();
     });
 
     $('#search-text').keypress(function(event) {
+        clearTimeout(doSearchTimeout);
         if (event.which == 13) {
-            $('#search-button').trigger("click");
+            doSearch();
+        } else {
+            doSearchTimeout = setTimeout(doSearch, 800);
         }
     })
 
@@ -434,5 +439,6 @@ $(function() {
             $('#search-text').val(urlData['keywords']);
         }
     }
+    urlData['limit'] = 24;
     listPage(data=urlData, cacheControl='no-cache');
 })
