@@ -226,7 +226,7 @@ def groups():
         if tags_str != None:
             tags = tags_str.strip().split()
 
-        limit = 10
+        limit = 12
         limit_str = request.args.get("limit")
         if limit_str != None:
             try:

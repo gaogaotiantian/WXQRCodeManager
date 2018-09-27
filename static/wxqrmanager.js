@@ -441,6 +441,5 @@ $(function() {
             $('#search-text').val(urlData['keywords']);
         }
     }
-    urlData['limit'] = 24;
     listPage(data=urlData, cacheControl='no-cache');
 })
