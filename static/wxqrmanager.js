@@ -346,9 +346,9 @@ $(function() {
         }
     })
 
-    $('#search-text').change(function() {
-        // change will handle the delay
-        doSearch();
+    $('#search-text').keyup(function() {
+        clearTimeout(doSearchTimeout);
+        doSearchTimeout = setTimeout(doSearch, 800);
     })
 
     // Change view
