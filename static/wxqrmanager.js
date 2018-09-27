@@ -347,8 +347,8 @@ $(function() {
     })
 
     $('#search-text').change(function() {
-        clearTimeout(doSearchTimeout);
-        doSearchTimeout = setTimeout(doSearch, 800);
+        // change will handle the delay
+        doSearch();
     })
 
     // Change view
