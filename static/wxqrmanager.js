@@ -341,12 +341,14 @@ $(function() {
     });
 
     $('#search-text').keypress(function(event) {
-        clearTimeout(doSearchTimeout);
         if (event.which == 13) {
             doSearch();
-        } else {
-            doSearchTimeout = setTimeout(doSearch, 800);
         }
+    })
+
+    $('#search-text').change(function() {
+        clearTimeout(doSearchTimeout);
+        doSearchTimeout = setTimeout(doSearch, 800);
     })
 
     // Change view
